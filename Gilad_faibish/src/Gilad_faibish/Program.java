@@ -535,10 +535,36 @@ public class Program {
 			System.out.println(e.getMessage());
 		}
 		
+		
 		SubjectsDb subjects = new SubjectsDb(allSubjects);
 
 		System.out.println("Welcome to our exams creation system.\n ");
 		DataBase db = chooseSubject(subjects);
+		
+		try {
+			ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = 'Countries';");
+			Integer subjectid = null;
+			while(rs1.next()) {
+				subjectid = rs1.getInt("subjectid");
+			}
+            for(int i = 0; i < db.getNumOfAnswers(); i++) {
+                int rs2 = stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid.toString() + ", '" + db.getAnswer(i).getAnswer() + "');");
+            }
+            
+            /*
+             * Questions[] dbQuestions = db.getAllQuestions(); for(int i = 0; i <
+             * db.getNumOfQuestions(); i++) { int rs =
+             * stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" +
+             * allSubjects[i].getSubject() + "');"); }
+             */
+        } catch (SQLException ex) {
+            while (ex != null) {
+                System.out.println("SQL exception: " + ex.getMessage());
+                ex = ex.getNextException();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
 		do {
 			try {
