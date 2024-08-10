@@ -502,20 +502,39 @@ public class Program {
 		int choice;
 		
 		Connection conn = null;
+		Statement stmt = null;
 		try {
 			Class.forName("org.postgresql.Driver");
-			String dbUrl = "jdbc:postgresql://localhost:5432/college";
+			String dbUrl = "jdbc:postgresql://localhost:5432/ExamCreationDB";
 			conn = DriverManager.getConnection(dbUrl, "postgres", "1234");
-			System.out.println("Made a connection to the server!\n");
-			conn.close();
-		}catch(Exception e) {
-			System.out.println("Didn't make a connection to the server!\n");
+			stmt = conn.createStatement();
+		} catch (SQLException ex) {
+			while (ex != null) {
+				System.out.println("SQL exception: " + ex.getMessage());
+				ex = ex.getNextException();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 
 		// DataBase db = new DataBase("Countries");
 		// createQAndAManually(db);
 		DataBase[] allSubjects;
 		allSubjects = createSubjectsArr();
+		
+		try {
+			for(int i = 0; i < allSubjects.length; i++) {
+				int rs = stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" + allSubjects[i].getSubject() + "');");
+			}
+		} catch (SQLException ex) {
+			while (ex != null) {
+				System.out.println("SQL exception: " + ex.getMessage());
+				ex = ex.getNextException();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
 		SubjectsDb subjects = new SubjectsDb(allSubjects);
 
 		System.out.println("Welcome to our exams creation system.\n ");
@@ -553,6 +572,7 @@ public class Program {
 					outFile.writeObject(subjects.getAllSubjects());
 					outFile.close();
 					fcontinue = false;
+					conn.close();
 					break;
 				default:
 					System.out.println("Invalid input , please choose again.\n");
