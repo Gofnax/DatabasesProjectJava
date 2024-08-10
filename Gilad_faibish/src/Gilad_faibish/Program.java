@@ -522,18 +522,18 @@ public class Program {
 		DataBase[] allSubjects;
 		allSubjects = createSubjectsArr();
 		
-		try {
-			for(int i = 0; i < allSubjects.length; i++) {
-				int rs = stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" + allSubjects[i].getSubject() + "');");
-			}
-		} catch (SQLException ex) {
-			while (ex != null) {
-				System.out.println("SQL exception: " + ex.getMessage());
-				ex = ex.getNextException();
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+//		try {
+//			for(int i = 0; i < allSubjects.length; i++) {
+//				int rs = stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" + allSubjects[i].getSubject() + "');");
+//			}
+//		} catch (SQLException ex) {
+//			while (ex != null) {
+//				System.out.println("SQL exception: " + ex.getMessage());
+//				ex = ex.getNextException();
+//			}
+//		} catch (Exception e) {
+//			System.out.println(e.getMessage());
+//		}
 		
 		
 		SubjectsDb subjects = new SubjectsDb(allSubjects);
