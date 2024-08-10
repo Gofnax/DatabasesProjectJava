@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.InputMismatchException;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.sql.*;
 
@@ -507,7 +508,7 @@ public class Program {
 		try {
 			Class.forName("org.postgresql.Driver");
 			String dbUrl = "jdbc:postgresql://localhost:5432/ExamCreationDB";
-			conn = DriverManager.getConnection(dbUrl, "postgres", "1234");
+			conn = DriverManager.getConnection(dbUrl, "postgres", "tbhcvhh123");
 			stmt = conn.createStatement();
 		} catch (SQLException ex) {
 			while (ex != null) {
@@ -553,7 +554,7 @@ public class Program {
 //			}
 
 			Questions[] dbQuestions = db.getAllQuestions();
-			for (int i = 0; i < db.getNumOfQuestions(); i++) {
+//			for (int i = 0; i < db.getNumOfQuestions(); i++) {
 //				if(dbQuestions[i] instanceof OpenQuestion) {
 //					String answerText = ((OpenQuestion)dbQuestions[i]).getAnswer().getAnswer();
 //					ResultSet rs4 = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answerText + "';");
@@ -566,6 +567,23 @@ public class Program {
 //					int rs5 = stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid.toString() + ", '" + dbQuestions[i].getQuestion() + "', "
 //							+ dbQuestions[i].difficulty.ordinal() + ");");
 //				}
+//			}
+			for (int i = 0; i < dbQuestions.length; i++) {
+				if(dbQuestions[i] instanceof MultipleQuestion) {
+					MultipleQuestion mq = (MultipleQuestion)dbQuestions[i];
+					String ques = mq.getQuestion();
+					ResultSet rs6 = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + ques + "';");
+					rs6.next();
+					int questionid = rs6.getInt("mquestionid");
+					for (int j = 0; j < mq.getNumOfQAnswers(); j++) {
+						String answerText = mq.getQAnswer(j).getQAnswer().getAnswer();
+						ResultSet rs7 = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answerText + "';");
+						rs7.next();
+						int answerid = rs7.getInt("answerid");
+						boolean isCorrrect = mq.getQAnswer(j).getIsCorrect();
+						int rs8 = stmt.executeUpdate("INSERT INTO mquestion_answertb VALUES("+ questionid + ", "+ answerid + ", "+ isCorrrect +");");
+					}
+				}
 			}
 
 		} catch (SQLException ex) {
