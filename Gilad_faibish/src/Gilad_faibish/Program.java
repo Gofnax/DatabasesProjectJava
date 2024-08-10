@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.sql.*;
 
 import Gilad_faibish.Questions.eDifficulty;
 
@@ -499,6 +500,17 @@ public class Program {
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
 		boolean fcontinue = true;
 		int choice;
+		
+		Connection conn = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			String dbUrl = "jdbc:postgresql://localhost:5432/college";
+			conn = DriverManager.getConnection(dbUrl, "postgres", "1234");
+			System.out.println("Made a connection to the server!\n");
+			conn.close();
+		}catch(Exception e) {
+			System.out.println("Didn't make a connection to the server!\n");
+		}
 
 		// DataBase db = new DataBase("Countries");
 		// createQAndAManually(db);
