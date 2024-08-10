@@ -1,4 +1,5 @@
 package Gilad_faibish;
+
 // El grande profesor
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -500,7 +501,7 @@ public class Program {
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
 		boolean fcontinue = true;
 		int choice;
-		
+
 		Connection conn = null;
 		Statement stmt = null;
 		try {
@@ -521,7 +522,7 @@ public class Program {
 		// createQAndAManually(db);
 		DataBase[] allSubjects;
 		allSubjects = createSubjectsArr();
-		
+
 //		try {
 //			for(int i = 0; i < allSubjects.length; i++) {
 //				int rs = stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" + allSubjects[i].getSubject() + "');");
@@ -534,37 +535,47 @@ public class Program {
 //		} catch (Exception e) {
 //			System.out.println(e.getMessage());
 //		}
-		
-		
+
 		SubjectsDb subjects = new SubjectsDb(allSubjects);
 
 		System.out.println("Welcome to our exams creation system.\n ");
 		DataBase db = chooseSubject(subjects);
-		
+
 		try {
 			ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = 'Countries';");
 			Integer subjectid = null;
-			while(rs1.next()) {
+			while (rs1.next()) {
 				subjectid = rs1.getInt("subjectid");
 			}
-            for(int i = 0; i < db.getNumOfAnswers(); i++) {
-                int rs2 = stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid.toString() + ", '" + db.getAnswer(i).getAnswer() + "');");
-            }
-            
-            /*
-             * Questions[] dbQuestions = db.getAllQuestions(); for(int i = 0; i <
-             * db.getNumOfQuestions(); i++) { int rs =
-             * stmt.executeUpdate("INSERT INTO subjecttb VALUES (default, '" +
-             * allSubjects[i].getSubject() + "');"); }
-             */
-        } catch (SQLException ex) {
-            while (ex != null) {
-                System.out.println("SQL exception: " + ex.getMessage());
-                ex = ex.getNextException();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+//			for (int i = 0; i < db.getNumOfAnswers(); i++) {
+//				int rs2 = stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid.toString() + ", '"
+//						+ db.getAnswer(i).getAnswer() + "');");
+//			}
+
+			Questions[] dbQuestions = db.getAllQuestions();
+			for (int i = 0; i < db.getNumOfQuestions(); i++) {
+//				if(dbQuestions[i] instanceof OpenQuestion) {
+//					String answerText = ((OpenQuestion)dbQuestions[i]).getAnswer().getAnswer();
+//					ResultSet rs4 = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answerText + "';");
+//					rs4.next();
+//					int answerid = rs4.getInt("answerid");
+//					int rs3 = stmt.executeUpdate("INSERT INTO oquestiontb VALUES (default, " + subjectid.toString() + ", " + answerid + ", '" + 
+//							dbQuestions[i].getQuestion() + "', " + dbQuestions[i].difficulty.ordinal() + ");");
+//				}
+//				if(dbQuestions[i] instanceof MultipleQuestion) {
+//					int rs5 = stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid.toString() + ", '" + dbQuestions[i].getQuestion() + "', "
+//							+ dbQuestions[i].difficulty.ordinal() + ");");
+//				}
+			}
+
+		} catch (SQLException ex) {
+			while (ex != null) {
+				System.out.println("SQL exception: " + ex.getMessage());
+				ex = ex.getNextException();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 
 		do {
 			try {
