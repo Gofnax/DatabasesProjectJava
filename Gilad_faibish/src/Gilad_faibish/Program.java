@@ -542,6 +542,50 @@ public class Program {
 				subjectid = rs1.getInt("subjectid");
 				subject = rs1.getString("subject");
 				allSubjects[i] = new DataBase(subject);
+				
+				// gets all the answers from the DB
+				ResultSet rs2 = stmt.executeQuery("SELECT * FROM answertb WHERE subjectid = " + subjectid + ";");
+				while(rs2.next()) {
+					String answerText = rs2.getString("answer");
+					Answers ans = new Answers(answerText);
+					allSubjects[i].addAnswer(ans);
+				}
+				
+				// gets all the open questions from the DB
+				ResultSet rs3 = stmt.executeQuery("SELECT * FROM oquestiontb WHERE subjectid = " + subjectid + ";");
+				while(rs3.next()) {
+					//maybe add answerid in serialNum attribute
+					String questionText = rs3.getString("question");
+					int difficulty = rs3.getInt("difficulty");
+					int ansId = rs3.getInt("answerid");
+					ResultSet rs4 = stmt.executeQuery("SELECT answer FROM answertb WHERE answerid = " + ansId + ";");
+					rs4.next();
+					String answerText = rs4.getString("answer");
+					allSubjects[i].addQuestion(new OpenQuestion(questionText, eDifficulty.values()[difficulty],
+							allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText))));
+				}
+				
+				// gets all the multiple choice questions from the DB
+				ResultSet rs5 = stmt.executeQuery("SELECT * FROM mquestiontb WHERE subjectid = " + subjectid + ";");
+				while(rs5.next()) {
+					int questionid = rs5.getInt("mquestionid");
+					String questionText = rs5.getString("question");
+					int difficulty = rs5.getInt("difficulty");
+					allSubjects[i].addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]));
+					
+					// gets all the answers associated with the multiple choice question
+					ResultSet rs6 = stmt.executeQuery("SELECT answerid, isCorrect FROM mquestion_answertb WHERE mquestionid = " + questionid + ";");
+					while(rs6.next()) {
+						boolean isCorrect = rs6.getBoolean("iscorrect");
+						ResultSet rs7 = stmt.executeQuery("SELECT answer FROM answertb WHERE answerid = " + rs6.getInt("answerid") + ";");
+						rs7.next();
+						String answerText = rs7.getString("answer");
+						Answers tmpAns = allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText));
+						int questionIndex = allSubjects[i].getNumOfQuestions() - 1;
+						((MultipleQuestion)(allSubjects[i].getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect);
+					}
+				}
+				
 			}
 			
 		} catch (SQLException ex) {
