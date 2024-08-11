@@ -59,7 +59,7 @@ public class Program {
 		return false;
 	}
 
-	public static boolean addAnswerToQuestion(DataBase db) {
+	public static boolean addAnswerToQuestion(DataBase db, Statement stmt) throws SQLException {
 		int mqIndex; // multiple question index
 		int qIndex; // question index
 		int aIndex; // answer index
@@ -119,7 +119,9 @@ public class Program {
 
 		if (db.getAllQuestions()[qIndex] instanceof MultipleQuestion) {
 			MultipleQuestion mq = (MultipleQuestion) db.getAllQuestions()[qIndex];
-			mq.addAnswerToQuestion(temp[aIndex - 1], isCorrect);
+			int questionid = getQuestionId(mq.getQuestion(), 1, stmt);
+			int answerid = getAnswerId(temp[aIndex - 1].getAnswer(), stmt);
+			mq.addAnswerToQuestion(temp[aIndex - 1], isCorrect, answerid, questionid, stmt, 1);
 			System.out.println("Answer successfully added.\n ");
 		}
 		return true;
@@ -226,15 +228,9 @@ public class Program {
 
 		if (db.getAllQuestions()[qIndex] instanceof MultipleQuestion) {
 			MultipleQuestion mq = (MultipleQuestion) db.getAllQuestions()[qIndex];
-			ResultSet rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + mq.getQuestion() + "';");
-			rs.next();
-			int questionid = rs.getInt("mquestionid");
-			rs.close();
-			String ans = mq.getAllQAnswers()[aIndex-1].getQAnswer().getAnswer();
-			ResultSet rs1 = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + ans + "';");
-			rs1.next();
-			int answerid = rs1.getInt("answerid");
-			rs1.close();
+			int questionid = getQuestionId(mq.getQuestion(), 1, stmt);
+			String ans = mq.getAllQAnswers()[aIndex - 1].getQAnswer().getAnswer();
+			int answerid = getAnswerId(ans, stmt);
 			mq.removeAnswerToQuestion(aIndex - 1, answerid, questionid, stmt);
 			System.out.println("The answer was successfully removed");
 		}
@@ -317,121 +313,121 @@ public class Program {
 		}
 	}
 
-	public static void createQAndAManually(DataBase db) {
-		MultipleQuestion q1 = new MultipleQuestion("Which of the following countries is the largest?",
-				eDifficulty.Easy);
-		db.addQuestion(q1);
-		Answers a0 = new Answers("My name is Gilad");
-		db.addAnswer(a0);
-		Questions q0 = new OpenQuestion("What is your name?", eDifficulty.Easy, a0);
-		db.addQuestion(q0);
-		MultipleQuestion q2 = new MultipleQuestion("Which of the following countries is the smallest?",
-				eDifficulty.Hard);
-		db.addQuestion(q2);
-		MultipleQuestion q3 = new MultipleQuestion("Which of the following countries is located in the Middle East?",
-				eDifficulty.Regular);
-		db.addQuestion(q3);
-		MultipleQuestion q4 = new MultipleQuestion("Which of the following countries is located in America?",
-				eDifficulty.Easy);
-		db.addQuestion(q4);
-		MultipleQuestion q5 = new MultipleQuestion("Which of the following countries is located in Europe?",
-				eDifficulty.Easy);
-		db.addQuestion(q5);
-		MultipleQuestion q6 = new MultipleQuestion(
-				"In which of the following countries is English considered their mother tongue?", eDifficulty.Easy);
-		db.addQuestion(q6);
-		MultipleQuestion q7 = new MultipleQuestion(
-				"In which of the following countries is Spanish considered their mother tongue?", eDifficulty.Hard);
-		db.addQuestion(q7);
-		MultipleQuestion q8 = new MultipleQuestion(
-				"In which of the following countries is Arabic considered their mother tongue?", eDifficulty.Regular);
-		db.addQuestion(q8);
-		MultipleQuestion q9 = new MultipleQuestion(
-				"In which of the following countries is Hebrew considered their mother tongue?", eDifficulty.Hard);
-		db.addQuestion(q9);
-
-		Answers a1 = new Answers("Israel");
-		db.addAnswer(a1);
-		Answers a2 = new Answers("United States");
-		db.addAnswer(a2);
-		Answers a3 = new Answers("Mexico");
-		db.addAnswer(a3);
-		Answers a4 = new Answers("Colombia");
-		db.addAnswer(a4);
-		Answers a5 = new Answers("Netherlands");
-		db.addAnswer(a5);
-		Answers a6 = new Answers("Egypt");
-		db.addAnswer(a6);
-		Answers a7 = new Answers("Iran");
-		db.addAnswer(a7);
-		Answers a8 = new Answers("Spain");
-		db.addAnswer(a8);
-		Answers a9 = new Answers("Lebanon");
-		db.addAnswer(a9);
-		Answers a10 = new Answers("France");
-		db.addAnswer(a10);
-		Answers a11 = new Answers("Panama");
-		db.addAnswer(a11);
-
-		q1.addAnswerToQuestion(a1, false);
-		q1.addAnswerToQuestion(a2, true);
-		q1.addAnswerToQuestion(a3, false);
-		q1.addAnswerToQuestion(a4, false);
-		q1.addAnswerToQuestion(a5, false);
-		q1.addAnswerToQuestion(a6, false);
-		q1.addAnswerToQuestion(a7, false);
-		q1.addAnswerToQuestion(a8, false);
-		q1.addAnswerToQuestion(a9, false);
-		q1.addAnswerToQuestion(a10, false);
-
-		q2.addAnswerToQuestion(a1, true);
-		q2.addAnswerToQuestion(a2, false);
-		q2.addAnswerToQuestion(a3, false);
-		q2.addAnswerToQuestion(a4, false);
-		q2.addAnswerToQuestion(a10, false);
-
-		q3.addAnswerToQuestion(a2, false);
-		q3.addAnswerToQuestion(a5, false);
-		q3.addAnswerToQuestion(a1, true);
-		q3.addAnswerToQuestion(a6, true);
-		q3.addAnswerToQuestion(a9, true);
-
-		q4.addAnswerToQuestion(a1, false);
-		q4.addAnswerToQuestion(a5, false);
-		q4.addAnswerToQuestion(a6, false);
-		q4.addAnswerToQuestion(a7, false);
-		q4.addAnswerToQuestion(a8, false);
-
-		q5.addAnswerToQuestion(a1, false);
-		q5.addAnswerToQuestion(a2, false);
-		q5.addAnswerToQuestion(a3, false);
-		q5.addAnswerToQuestion(a4, false);
-		q5.addAnswerToQuestion(a5, true);
-
-		q6.addAnswerToQuestion(a1, false);
-		q6.addAnswerToQuestion(a3, false);
-		q6.addAnswerToQuestion(a5, false);
-		q6.addAnswerToQuestion(a2, true);
-		q6.addAnswerToQuestion(a8, false);
-
-		q7.addAnswerToQuestion(a1, false);
-		q7.addAnswerToQuestion(a2, false);
-		q7.addAnswerToQuestion(a3, true);
-		// q7.addAnswerToQuestion(a4, true);
-		// q7.addAnswerToQuestion(a5, false);
-
-		q8.addAnswerToQuestion(a2, false);
-		q8.addAnswerToQuestion(a3, false);
-		q8.addAnswerToQuestion(a4, false);
-		q8.addAnswerToQuestion(a5, false);
-		// q8.addAnswerToQuestion(a10, false);
-
-		q9.addAnswerToQuestion(a4, false);
-		q9.addAnswerToQuestion(a1, true);
-		q9.addAnswerToQuestion(a6, false);
-		// q9.addAnswerToQuestion(a9, false);
-
-	}
+//	public static void createQAndAManually(DataBase db) {
+//		MultipleQuestion q1 = new MultipleQuestion("Which of the following countries is the largest?",
+//				eDifficulty.Easy);
+//		db.addQuestion(q1);
+//		Answers a0 = new Answers("My name is Gilad");
+//		db.addAnswer(a0);
+//		Questions q0 = new OpenQuestion("What is your name?", eDifficulty.Easy, a0);
+//		db.addQuestion(q0);
+//		MultipleQuestion q2 = new MultipleQuestion("Which of the following countries is the smallest?",
+//				eDifficulty.Hard);
+//		db.addQuestion(q2);
+//		MultipleQuestion q3 = new MultipleQuestion("Which of the following countries is located in the Middle East?",
+//				eDifficulty.Regular);
+//		db.addQuestion(q3);
+//		MultipleQuestion q4 = new MultipleQuestion("Which of the following countries is located in America?",
+//				eDifficulty.Easy);
+//		db.addQuestion(q4);
+//		MultipleQuestion q5 = new MultipleQuestion("Which of the following countries is located in Europe?",
+//				eDifficulty.Easy);
+//		db.addQuestion(q5);
+//		MultipleQuestion q6 = new MultipleQuestion(
+//				"In which of the following countries is English considered their mother tongue?", eDifficulty.Easy);
+//		db.addQuestion(q6);
+//		MultipleQuestion q7 = new MultipleQuestion(
+//				"In which of the following countries is Spanish considered their mother tongue?", eDifficulty.Hard);
+//		db.addQuestion(q7);
+//		MultipleQuestion q8 = new MultipleQuestion(
+//				"In which of the following countries is Arabic considered their mother tongue?", eDifficulty.Regular);
+//		db.addQuestion(q8);
+//		MultipleQuestion q9 = new MultipleQuestion(
+//				"In which of the following countries is Hebrew considered their mother tongue?", eDifficulty.Hard);
+//		db.addQuestion(q9);
+//
+//		Answers a1 = new Answers("Israel");
+//		db.addAnswer(a1);
+//		Answers a2 = new Answers("United States");
+//		db.addAnswer(a2);
+//		Answers a3 = new Answers("Mexico");
+//		db.addAnswer(a3);
+//		Answers a4 = new Answers("Colombia");
+//		db.addAnswer(a4);
+//		Answers a5 = new Answers("Netherlands");
+//		db.addAnswer(a5);
+//		Answers a6 = new Answers("Egypt");
+//		db.addAnswer(a6);
+//		Answers a7 = new Answers("Iran");
+//		db.addAnswer(a7);
+//		Answers a8 = new Answers("Spain");
+//		db.addAnswer(a8);
+//		Answers a9 = new Answers("Lebanon");
+//		db.addAnswer(a9);
+//		Answers a10 = new Answers("France");
+//		db.addAnswer(a10);
+//		Answers a11 = new Answers("Panama");
+//		db.addAnswer(a11);
+//
+//		q1.addAnswerToQuestion(a1, false);
+//		q1.addAnswerToQuestion(a2, true);
+//		q1.addAnswerToQuestion(a3, false);
+//		q1.addAnswerToQuestion(a4, false);
+//		q1.addAnswerToQuestion(a5, false);
+//		q1.addAnswerToQuestion(a6, false);
+//		q1.addAnswerToQuestion(a7, false);
+//		q1.addAnswerToQuestion(a8, false);
+//		q1.addAnswerToQuestion(a9, false);
+//		q1.addAnswerToQuestion(a10, false);
+//
+//		q2.addAnswerToQuestion(a1, true);
+//		q2.addAnswerToQuestion(a2, false);
+//		q2.addAnswerToQuestion(a3, false);
+//		q2.addAnswerToQuestion(a4, false);
+//		q2.addAnswerToQuestion(a10, false);
+//
+//		q3.addAnswerToQuestion(a2, false);
+//		q3.addAnswerToQuestion(a5, false);
+//		q3.addAnswerToQuestion(a1, true);
+//		q3.addAnswerToQuestion(a6, true);
+//		q3.addAnswerToQuestion(a9, true);
+//
+//		q4.addAnswerToQuestion(a1, false);
+//		q4.addAnswerToQuestion(a5, false);
+//		q4.addAnswerToQuestion(a6, false);
+//		q4.addAnswerToQuestion(a7, false);
+//		q4.addAnswerToQuestion(a8, false);
+//
+//		q5.addAnswerToQuestion(a1, false);
+//		q5.addAnswerToQuestion(a2, false);
+//		q5.addAnswerToQuestion(a3, false);
+//		q5.addAnswerToQuestion(a4, false);
+//		q5.addAnswerToQuestion(a5, true);
+//
+//		q6.addAnswerToQuestion(a1, false);
+//		q6.addAnswerToQuestion(a3, false);
+//		q6.addAnswerToQuestion(a5, false);
+//		q6.addAnswerToQuestion(a2, true);
+//		q6.addAnswerToQuestion(a8, false);
+//
+//		q7.addAnswerToQuestion(a1, false);
+//		q7.addAnswerToQuestion(a2, false);
+//		q7.addAnswerToQuestion(a3, true);
+//		// q7.addAnswerToQuestion(a4, true);
+//		// q7.addAnswerToQuestion(a5, false);
+//
+//		q8.addAnswerToQuestion(a2, false);
+//		q8.addAnswerToQuestion(a3, false);
+//		q8.addAnswerToQuestion(a4, false);
+//		q8.addAnswerToQuestion(a5, false);
+//		// q8.addAnswerToQuestion(a10, false);
+//
+//		q9.addAnswerToQuestion(a4, false);
+//		q9.addAnswerToQuestion(a1, true);
+//		q9.addAnswerToQuestion(a6, false);
+//		// q9.addAnswerToQuestion(a9, false);
+//
+//	}
 
 	public static void printMenu() {
 		System.out.println("Choose an option from the following: ");
@@ -606,6 +602,30 @@ public class Program {
 		rs3.close();
 	}
 
+	public static int getQuestionId(String question, int qType, Statement stmt) throws SQLException {
+		ResultSet rs;
+		int questionid;
+		if (qType == 1) {
+			rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + question + "';");
+			rs.next();
+			questionid = rs.getInt("mquestionid");
+		} else {
+			rs = stmt.executeQuery("SELECT oquestionid FROM oquestiontb WHERE question = '" + question + "';");
+			rs.next();
+			questionid = rs.getInt("oquestionid");
+		}
+		rs.close();
+		return questionid;
+	}
+
+	public static int getAnswerId(String answer, Statement stmt) throws SQLException {
+		ResultSet rs = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answer + "';");
+		rs.next();
+		int answerid = rs.getInt("answerid");
+		rs.close();
+		return answerid;
+	}
+
 	public static void getMQuestionsDB(Statement stmt, DataBase db, int subjectid) throws SQLException {
 		ResultSet rs4 = stmt.executeQuery("SELECT question, difficulty, isCorrect, answer FROM mquestiontb NATURAL JOIN"
 				+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
@@ -618,7 +638,7 @@ public class Program {
 			String answerText = rs4.getString("answer");
 			Answers tmpAns = db.getAnswer(db.getAnswerIndex(answerText));
 			int questionIndex = db.getNumOfQuestions() - 1;
-			((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect);
+			((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect, 0, 0, stmt, 0);
 		}
 		rs4.close();
 	}
@@ -644,7 +664,7 @@ public class Program {
 					addAnswerToDb(db, stmt);
 					break;
 				case 3:
-					addAnswerToQuestion(db);
+					addAnswerToQuestion(db, stmt);
 					break;
 				case 4:
 					addQuestionToDb(db);
