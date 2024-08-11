@@ -521,8 +521,37 @@ public class Program {
 
 		// DataBase db = new DataBase("Countries");
 		// createQAndAManually(db);
-		DataBase[] allSubjects;
-		allSubjects = createSubjectsArr();
+		//DataBase[] allSubjects;
+		//allSubjects = createSubjectsArr();
+		
+		DataBase[] allSubjects = null;
+		
+		try {
+			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS num FROM subjecttb;");
+			int counter = 0;
+			rs.next();
+			counter = rs.getInt("num");
+			
+			ResultSet rs1 = stmt.executeQuery("SELECT * FROM subjecttb;");
+			int subjectid;
+			String subject = null;
+			allSubjects = new DataBase[counter];
+			
+			for(int i = 0; i < counter; i++) {
+				rs1.next();
+				subjectid = rs1.getInt("subjectid");
+				subject = rs1.getString("subject");
+				allSubjects[i] = new DataBase(subject);
+			}
+			
+		} catch (SQLException ex) {
+			while (ex != null) {
+				System.out.println("SQL exception: " + ex.getMessage());
+				ex = ex.getNextException();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 
 		// add subject to DB.
 //		try {
