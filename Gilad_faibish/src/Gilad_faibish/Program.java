@@ -188,7 +188,7 @@ public class Program {
 		return false;
 	}
 
-	public static boolean deleteAnsToQuestionFromDb(DataBase db) {
+	public static boolean deleteAnsToQuestionFromDb(DataBase db, Statement stmt) throws SQLException {
 		int mqIndex; // Multiple choice question index
 		int aIndex; // Answer index
 		int qIndex; // Question index
@@ -226,7 +226,16 @@ public class Program {
 
 		if (db.getAllQuestions()[qIndex] instanceof MultipleQuestion) {
 			MultipleQuestion mq = (MultipleQuestion) db.getAllQuestions()[qIndex];
-			mq.removeAnswerToQuestion(aIndex - 1);
+			ResultSet rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + mq.getQuestion() + "';");
+			rs.next();
+			int questionid = rs.getInt("mquestionid");
+			rs.close();
+			String ans = mq.getAllQAnswers()[aIndex-1].getQAnswer().getAnswer();
+			ResultSet rs1 = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + ans + "';");
+			rs1.next();
+			int answerid = rs1.getInt("answerid");
+			rs1.close();
+			mq.removeAnswerToQuestion(aIndex - 1, answerid, questionid, stmt);
 			System.out.println("The answer was successfully removed");
 		}
 		return true;
@@ -641,7 +650,7 @@ public class Program {
 					addQuestionToDb(db);
 					break;
 				case 5:
-					deleteAnsToQuestionFromDb(db);
+					deleteAnsToQuestionFromDb(db, stmt);
 					break;
 				case 6:
 					deleteQuestionFromDb(db);
