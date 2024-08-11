@@ -40,7 +40,7 @@ public class Program {
 		System.out.println(db.toString());
 	}
 
-	public static boolean addAnswerToDb(DataBase db) {
+	public static boolean addAnswerToDb(DataBase db, Statement stmt) {
 		System.out.println(db.ansToString());
 
 		System.out.println("please write your answer: ");
@@ -49,7 +49,7 @@ public class Program {
 
 		Answers a = new Answers(answer);
 
-		boolean res = db.addAnswer(a);
+		boolean res = db.addAnswerWithDB(a, stmt);
 
 		if (res) {
 			System.out.println("Answer successfully added.\n ");
@@ -632,7 +632,7 @@ public class Program {
 					printQuestionsFromDb(db);
 					break;
 				case 2:
-					addAnswerToDb(db);
+					addAnswerToDb(db, stmt);
 					break;
 				case 3:
 					addAnswerToQuestion(db);
