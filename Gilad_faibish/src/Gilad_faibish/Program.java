@@ -508,7 +508,7 @@ public class Program {
 		try {
 			Class.forName("org.postgresql.Driver");
 			String dbUrl = "jdbc:postgresql://localhost:5432/ExamCreationDB";
-			conn = DriverManager.getConnection(dbUrl, "postgres", "1234");
+			conn = DriverManager.getConnection(dbUrl, "postgres", "12345");
 			stmt = conn.createStatement();
 		} catch (SQLException ex) {
 			while (ex != null) {
