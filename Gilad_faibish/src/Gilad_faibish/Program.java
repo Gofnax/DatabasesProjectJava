@@ -521,73 +521,70 @@ public class Program {
 
 		// DataBase db = new DataBase("Countries");
 		// createQAndAManually(db);
-		//DataBase[] allSubjects;
-		//allSubjects = createSubjectsArr();
-		
+		// DataBase[] allSubjects;
+		// allSubjects = createSubjectsArr();
+
 		DataBase[] allSubjects = null;
-		
+
 		try {
 			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS num FROM subjecttb;");
 			int counter = 0;
 			rs.next();
 			counter = rs.getInt("num");
-			
+
 			ResultSet rs1 = stmt.executeQuery("SELECT * FROM subjecttb;");
 			int subjectid;
 			String subject = null;
 			allSubjects = new DataBase[counter];
-			
-			for(int i = 0; i < counter; i++) {
+
+			for (int i = 0; i < counter; i++) {
 				rs1.next();
 				subjectid = rs1.getInt("subjectid");
 				subject = rs1.getString("subject");
 				allSubjects[i] = new DataBase(subject);
-				
+
 				// gets all the answers from the DB
 				ResultSet rs2 = stmt.executeQuery("SELECT * FROM answertb WHERE subjectid = " + subjectid + ";");
-				while(rs2.next()) {
+				while (rs2.next()) {
 					String answerText = rs2.getString("answer");
 					Answers ans = new Answers(answerText);
 					allSubjects[i].addAnswer(ans);
 				}
-				
+				rs2.close();
+
 				// gets all the open questions from the DB
-				ResultSet rs3 = stmt.executeQuery("SELECT * FROM oquestiontb WHERE subjectid = " + subjectid + ";");
-				while(rs3.next()) {
-					//maybe add answerid in serialNum attribute
+				ResultSet rs3 = stmt.executeQuery(
+						"SELECT * FROM oquestiontb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
+				while (rs3.next()) {
+					// maybe add answerid in serialNum attribute
 					String questionText = rs3.getString("question");
 					int difficulty = rs3.getInt("difficulty");
-					int ansId = rs3.getInt("answerid");
-					ResultSet rs4 = stmt.executeQuery("SELECT answer FROM answertb WHERE answerid = " + ansId + ";");
-					rs4.next();
-					String answerText = rs4.getString("answer");
+					String answerText = rs3.getString("answer");
 					allSubjects[i].addQuestion(new OpenQuestion(questionText, eDifficulty.values()[difficulty],
 							allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText))));
 				}
-				
+				rs3.close();
+
 				// gets all the multiple choice questions from the DB
-				ResultSet rs5 = stmt.executeQuery("SELECT * FROM mquestiontb WHERE subjectid = " + subjectid + ";");
-				while(rs5.next()) {
-					int questionid = rs5.getInt("mquestionid");
-					String questionText = rs5.getString("question");
-					int difficulty = rs5.getInt("difficulty");
+				ResultSet rs4 = stmt
+						.executeQuery("SELECT question, difficulty, isCorrect, answer FROM mquestiontb NATURAL JOIN"
+								+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
+				while (rs4.next()) {
+					String questionText = rs4.getString("question");
+					int difficulty = rs4.getInt("difficulty");
 					allSubjects[i].addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]));
-					
-					// gets all the answers associated with the multiple choice question
-					ResultSet rs6 = stmt.executeQuery("SELECT answerid, isCorrect FROM mquestion_answertb WHERE mquestionid = " + questionid + ";");
-					while(rs6.next()) {
-						boolean isCorrect = rs6.getBoolean("iscorrect");
-						ResultSet rs7 = stmt.executeQuery("SELECT answer FROM answertb WHERE answerid = " + rs6.getInt("answerid") + ";");
-						rs7.next();
-						String answerText = rs7.getString("answer");
-						Answers tmpAns = allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText));
-						int questionIndex = allSubjects[i].getNumOfQuestions() - 1;
-						((MultipleQuestion)(allSubjects[i].getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect);
-					}
+
+					boolean isCorrect = rs4.getBoolean("iscorrect");
+					String answerText = rs4.getString("answer");
+					Answers tmpAns = allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText));
+					int questionIndex = allSubjects[i].getNumOfQuestions() - 1;
+					((MultipleQuestion) (allSubjects[i].getQuestion(questionIndex))).addAnswerToQuestion(tmpAns,
+							isCorrect);
 				}
-				
+				rs4.close();
+
 			}
-			
+			rs1.close();
 		} catch (SQLException ex) {
 			while (ex != null) {
 				System.out.println("SQL exception: " + ex.getMessage());
@@ -618,20 +615,20 @@ public class Program {
 
 //		try {
 		// get subject id
-		
+
 //			ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = 'Countries';");
 //			Integer subjectid = null;
 //			while (rs1.next()) {
 //				subjectid = rs1.getInt("subjectid");
 //			}
 		// insert answers to answer table
-		
+
 //			for (int i = 0; i < db.getNumOfAnswers(); i++) {
 //				int rs2 = stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid.toString() + ", '"
 //						+ db.getAnswer(i).getAnswer() + "');");
 //			}
 //			insert open question to their table.
-		
+
 //			Questions[] dbQuestions = db.getAllQuestions();
 //			for (int i = 0; i < db.getNumOfQuestions(); i++) {
 //				if(dbQuestions[i] instanceof OpenQuestion) {
@@ -642,15 +639,15 @@ public class Program {
 //					int rs3 = stmt.executeUpdate("INSERT INTO oquestiontb VALUES (default, " + subjectid.toString() + ", " + answerid + ", '" + 
 //							dbQuestions[i].getQuestion() + "', " + dbQuestions[i].difficulty.ordinal() + ");");
 //				}
-			// insert multiple question to their table
-		
+		// insert multiple question to their table
+
 //				if(dbQuestions[i] instanceof MultipleQuestion) {
 //					int rs5 = stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid.toString() + ", '" + dbQuestions[i].getQuestion() + "', "
 //							+ dbQuestions[i].difficulty.ordinal() + ");");
 //				}
 //			}
-			// insert links between questions to their answers.
-		
+		// insert links between questions to their answers.
+
 //			for (int i = 0; i < dbQuestions.length; i++) {
 //				if(dbQuestions[i] instanceof MultipleQuestion) {
 //					MultipleQuestion mq = (MultipleQuestion)dbQuestions[i];
