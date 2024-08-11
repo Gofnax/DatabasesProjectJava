@@ -436,31 +436,54 @@ public class Program {
 		System.out.println("-1) Exit. ");
 	}
 
-	public static DataBase chooseSubject(SubjectsDb subjects) {
+	public static DataBase chooseSubject(Statement stmt) {
 		boolean isValid = true, isExist = true;
+		String allSubjects[] = null;
 		DataBase db = null;
 		int choice;
 
-		System.out.println(subjects.toString());
+		try {
+			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS num FROM subjecttb;");
+			int counter = 0;
+			rs.next();
+			counter = rs.getInt("num");
+			allSubjects = new String[counter];
+			ResultSet rs1 = stmt.executeQuery("SELECT * FROM subjecttb;");
+
+			System.out.println("These are all the subjects that exist in our system:");
+			for (int i = 0; i < allSubjects.length; i++) {
+				rs1.next();
+				allSubjects[i] = rs1.getString("subject");
+				System.out.println((i + 1) + ") " + allSubjects[i]);
+			}
+			System.out.println();
+		} catch (SQLException ex) {
+			while (ex != null) {
+				System.out.println("SQL exception: " + ex.getMessage());
+				ex = ex.getNextException();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 		do {
 			try {
 				System.out.println("Choose an option from the following:");
 				System.out.println("1) Add new subject.");
-				System.out.println("2) Choose a subject from among the existing subjects.");
+				System.out.println("2) Choose a subject from among the existing subjects.\n");
 				choice = s.nextInt();
 				switch (choice) {
 				case 1:
 					do {
 						System.out.println("Enter the name of the subject:");
 						String ans = s.next();
-						if (!subjects.isSubExist(ans)) {
-							db = new DataBase(ans);
-							subjects.addSubject(db);
-							Questions.setCounter(db.getNumOfQuestions());
-							isExist = false;
-						} else {
-							System.out
-									.println("There is already a subject with the name you chose , please try again.");
+						for (int i = 0; i < allSubjects.length; i++) {
+							if (allSubjects[i] == ans) {
+								System.out.println(
+										"There is already a subject with the name you chose , please try again.");
+							} else {
+								db = new DataBase(ans);
+								isExist = false;
+							}
 						}
 					} while (isExist);
 					isValid = false;
@@ -468,14 +491,16 @@ public class Program {
 
 				case 2:
 					do {
-						System.out.println(subjects.toString());
+						System.out.println("These are all the subjects that exist in our system:");
+						for (int i = 0; i < allSubjects.length; i++) {
+							System.out.println((i + 1) + ") " + allSubjects[i]);
+						}
 						System.out.println("Please select the subject number.");
 						int ans = s.nextInt();
-						if (ans <= 0 || ans > subjects.getNumOfSubjects()) {
+						if (ans <= 0 || ans > allSubjects.length) {
 							System.out.println("Invalid input , please try again.");
 						} else {
-							db = subjects.getAllSubjects()[ans - 1];
-							Questions.setCounter(db.getNumOfQuestions());
+							db = new DataBase(allSubjects[ans - 1]);
 							isValid = false;
 						}
 					} while (isValid);
@@ -499,11 +524,7 @@ public class Program {
 
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException, IOException {
-		boolean fcontinue = true;
-		int choice;
-
-		Connection conn = null;
+	public static Statement initConnection(Connection conn) {
 		Statement stmt = null;
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -518,73 +539,77 @@ public class Program {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		return stmt;
+	}
+
+	public static void main(String[] args) throws ClassNotFoundException, IOException {
+		boolean fcontinue = true;
+		int choice;
+
+		Connection conn = null;
+		Statement stmt = initConnection(conn);
 
 		// DataBase db = new DataBase("Countries");
 		// createQAndAManually(db);
 		// DataBase[] allSubjects;
 		// allSubjects = createSubjectsArr();
 
-		DataBase[] allSubjects = null;
+//		DataBase[] allSubjects = null;
+		System.out.println("Welcome to our exams creation system.\n ");
+		DataBase db = chooseSubject(stmt);
 
 		try {
-			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS num FROM subjecttb;");
-			int counter = 0;
-			rs.next();
-			counter = rs.getInt("num");
+//			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS num FROM subjecttb;");
+//			int counter = 0;
+//			rs.next();
+//			counter = rs.getInt("num");
+//			allSubjects = new DataBase[counter];
 
-			ResultSet rs1 = stmt.executeQuery("SELECT * FROM subjecttb;");
-			int subjectid;
-			String subject = null;
-			allSubjects = new DataBase[counter];
+			ResultSet rs1 = stmt
+					.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + db.getSubject() + "';");
 
-			for (int i = 0; i < counter; i++) {
-				rs1.next();
-				subjectid = rs1.getInt("subjectid");
-				subject = rs1.getString("subject");
-				allSubjects[i] = new DataBase(subject);
-
-				// gets all the answers from the DB
-				ResultSet rs2 = stmt.executeQuery("SELECT * FROM answertb WHERE subjectid = " + subjectid + ";");
-				while (rs2.next()) {
-					String answerText = rs2.getString("answer");
-					Answers ans = new Answers(answerText);
-					allSubjects[i].addAnswer(ans);
-				}
-				rs2.close();
-
-				// gets all the open questions from the DB
-				ResultSet rs3 = stmt.executeQuery(
-						"SELECT * FROM oquestiontb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
-				while (rs3.next()) {
-					// maybe add answerid in serialNum attribute
-					String questionText = rs3.getString("question");
-					int difficulty = rs3.getInt("difficulty");
-					String answerText = rs3.getString("answer");
-					allSubjects[i].addQuestion(new OpenQuestion(questionText, eDifficulty.values()[difficulty],
-							allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText))));
-				}
-				rs3.close();
-
-				// gets all the multiple choice questions from the DB
-				ResultSet rs4 = stmt
-						.executeQuery("SELECT question, difficulty, isCorrect, answer FROM mquestiontb NATURAL JOIN"
-								+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
-				while (rs4.next()) {
-					String questionText = rs4.getString("question");
-					int difficulty = rs4.getInt("difficulty");
-					allSubjects[i].addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]));
-
-					boolean isCorrect = rs4.getBoolean("iscorrect");
-					String answerText = rs4.getString("answer");
-					Answers tmpAns = allSubjects[i].getAnswer(allSubjects[i].getAnswerIndex(answerText));
-					int questionIndex = allSubjects[i].getNumOfQuestions() - 1;
-					((MultipleQuestion) (allSubjects[i].getQuestion(questionIndex))).addAnswerToQuestion(tmpAns,
-							isCorrect);
-				}
-				rs4.close();
-
-			}
+			rs1.next();
+			int subjectid = rs1.getInt("subjectid");
 			rs1.close();
+
+			// gets all the answers from the DB
+			ResultSet rs2 = stmt.executeQuery("SELECT * FROM answertb WHERE subjectid = " + subjectid + ";");
+			while (rs2.next()) {
+				String answerText = rs2.getString("answer");
+				Answers ans = new Answers(answerText);
+				db.addAnswer(ans);
+			}
+			rs2.close();
+
+			// gets all the open questions from the DB
+			ResultSet rs3 = stmt.executeQuery(
+					"SELECT * FROM oquestiontb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
+			while (rs3.next()) {
+				// maybe add answerid in serialNum attribute
+				String questionText = rs3.getString("question");
+				int difficulty = rs3.getInt("difficulty");
+				String answerText = rs3.getString("answer");
+				db.addQuestion(new OpenQuestion(questionText, eDifficulty.values()[difficulty],
+						db.getAnswer(db.getAnswerIndex(answerText))));
+			}
+			rs3.close();
+
+			// gets all the multiple choice questions from the DB
+			ResultSet rs4 = stmt
+					.executeQuery("SELECT question, difficulty, isCorrect, answer FROM mquestiontb NATURAL JOIN"
+							+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
+			while (rs4.next()) {
+				String questionText = rs4.getString("question");
+				int difficulty = rs4.getInt("difficulty");
+				db.addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]));
+
+				boolean isCorrect = rs4.getBoolean("iscorrect");
+				String answerText = rs4.getString("answer");
+				Answers tmpAns = db.getAnswer(db.getAnswerIndex(answerText));
+				int questionIndex = db.getNumOfQuestions() - 1;
+				((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect);
+			}
+			rs4.close();
 		} catch (SQLException ex) {
 			while (ex != null) {
 				System.out.println("SQL exception: " + ex.getMessage());
@@ -607,11 +632,6 @@ public class Program {
 //		} catch (Exception e) {
 //			System.out.println(e.getMessage());
 //		}
-
-		SubjectsDb subjects = new SubjectsDb(allSubjects);
-
-		System.out.println("Welcome to our exams creation system.\n ");
-		DataBase db = chooseSubject(subjects);
 
 //		try {
 		// get subject id
@@ -703,9 +723,9 @@ public class Program {
 					break;
 				case -1:
 					System.out.println("Thank you and goodbye. ");
-					ObjectOutputStream outFile = new ObjectOutputStream(new FileOutputStream("SubjectsDb.dat"));
-					outFile.writeObject(subjects.getAllSubjects());
-					outFile.close();
+//					ObjectOutputStream outFile = new ObjectOutputStream(new FileOutputStream("SubjectsDb.dat"));
+//					outFile.writeObject(subjects.getAllSubjects());
+//					outFile.close();
 					fcontinue = false;
 					conn.close();
 					break;
