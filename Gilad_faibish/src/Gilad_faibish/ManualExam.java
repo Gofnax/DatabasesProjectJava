@@ -1,6 +1,7 @@
 package Gilad_faibish;
 
 import java.io.FileNotFoundException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
@@ -9,7 +10,7 @@ public class ManualExam implements Examable {
 	public static Scanner s1 = new Scanner(System.in);
 
 	@Override
-	public void createExam(DataBase db, int numOfQuestions) throws FileNotFoundException {
+	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException {
 		boolean flag = true;
 		boolean fcontinue = true;
 		int counter = 0;

@@ -1,6 +1,7 @@
 package Gilad_faibish;
 
 import java.io.FileNotFoundException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
@@ -8,7 +9,7 @@ import java.util.Random;
 public class AutomaticExam implements Examable {
 
 	@Override
-	public void createExam(DataBase db, int numOfQuestions) throws FileNotFoundException {
+	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException {
 		Random r = new Random();
 		boolean flag = true;
 		int trueCounter;

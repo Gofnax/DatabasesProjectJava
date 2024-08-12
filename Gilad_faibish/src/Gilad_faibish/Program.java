@@ -258,7 +258,7 @@ public class Program {
 		return res;
 	}
 
-	public static void createExam(DataBase db) throws FileNotFoundException {
+	public static void createExam(DataBase db, Statement stmt) throws FileNotFoundException {
 		boolean isValid = true;
 		int numOfQuestions = 0;
 		if (db.getNumOfQuestions() > 0 && db.getNumOfGoodQuestions() > 0) {
@@ -294,11 +294,11 @@ public class Program {
 				switch (choice) {
 				case 1:
 					ManualExam me = new ManualExam();
-					me.createExam(db, numOfQuestions);
+					me.createExam(db, numOfQuestions, stmt);
 					break;
 				case 2:
 					AutomaticExam ae = new AutomaticExam();
-					ae.createExam(db, numOfQuestions);
+					ae.createExam(db, numOfQuestions, stmt);
 					break;
 				default:
 					System.out.println("Wrong input , please try again.");
@@ -561,7 +561,7 @@ public class Program {
 					deleteQuestionFromDb(db);
 					break;
 				case 7:
-					createExam(db);
+					createExam(db, stmt);
 					break;
 				case -1:
 					System.out.println("Thank you and goodbye. ");
