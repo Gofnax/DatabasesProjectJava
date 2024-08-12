@@ -103,9 +103,12 @@ public class DataBase implements Serializable {
 		return true;
 	}
 
-	public boolean removeQuestion(int index, int questionid, Statement stmt) {
-		if (index >= this.numOfQuestions || index < 0)
-			return false;
+	public boolean removeQuestion(int index, int questionid, Statement stmt) throws SQLException {
+
+		if (this.allQuestions[index] instanceof MultipleQuestion) {
+			stmt.executeUpdate("DELETE FROM mquestiontb WHERE mquestionid = " + questionid + ";");
+		} else
+			stmt.executeUpdate("DELETE FROM oquestiontb WHERE oquestionid = " + questionid + ";");
 
 		this.allQuestions[index] = this.allQuestions[numOfQuestions - 1];
 		this.allQuestions[--numOfQuestions] = null;
