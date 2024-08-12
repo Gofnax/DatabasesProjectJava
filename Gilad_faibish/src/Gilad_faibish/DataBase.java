@@ -277,18 +277,25 @@ public class DataBase implements Serializable {
 		return sb.toString();
 	}
 
-	public void createExamFiles(DataBase exam, StringBuffer exName, StringBuffer soName, int exType)
-			throws FileNotFoundException {
+	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt) throws FileNotFoundException, SQLException {
 		// exType = exam type (auto\manual).
 
-		File ex = new File(exName.toString());
-		File so = new File(soName.toString());
+		File ex = new File("exam_" + exName.toString());
+		File so = new File("solution_" + exName.toString());
 		PrintWriter pw = new PrintWriter(ex);
 		PrintWriter pw1 = new PrintWriter(so);
-		pw.print(exam.examToString(exType));
-		pw1.print(exam.solutionToString());
+		String examString = exam.examToString(exType);
+		String solutionString = exam.solutionToString();
+		pw.print(examString);
+		pw1.print(solutionString);
 		pw.close();
 		pw1.close();
+		
+		ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
+		rs1.next();
+		int subjectid = rs1.getInt("subjectid");
+		
+		stmt.executeUpdate("INSERT INTO examtb VALUES (default, " + subjectid + ", '" + exName + "', '" + examString + "', '" + solutionString + "');");
 	}
 
 	@Override

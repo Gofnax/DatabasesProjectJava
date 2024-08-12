@@ -10,7 +10,7 @@ public class ManualExam implements Examable {
 	public static Scanner s1 = new Scanner(System.in);
 
 	@Override
-	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException {
+	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException, SQLException {
 		boolean flag = true;
 		boolean fcontinue = true;
 		int counter = 0;
@@ -22,8 +22,9 @@ public class ManualExam implements Examable {
 
 		LocalDateTime today = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh_mm");
-		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
-		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
+		StringBuffer exName = new StringBuffer("" + today.format(dtf) + ".txt");
+//		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
+//		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
 		DataBase exam = new DataBase(exName.toString());
 
 		for (int eIndex = 0; eIndex < numOfQuestions; eIndex++) {// eIndex = exam index
@@ -76,11 +77,11 @@ public class ManualExam implements Examable {
 			if (db.getQuestion(qIndex) instanceof MultipleQuestion) {
 				Questions q = new MultipleQuestion(db.getQuestion(qIndex).getQuestion(),
 						db.getQuestion(qIndex).difficulty);
-				exam.addQuestion(q);
+				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
 				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 				minAns = 0;
 				while (minAns < 4) {
-					flag = addAnsToQuestionForExam(exam, db, qIndex, eIndex);
+					flag = addAnsToQuestionForExam(exam, db, qIndex, eIndex, stmt);
 					if (flag)
 						minAns++;
 				}
@@ -94,7 +95,7 @@ public class ManualExam implements Examable {
 						if (ans == 'n' || ans == 'N') {
 							fcontinue = false;
 						} else if (ans == 'y' || ans == 'Y') {
-							flag = addAnsToQuestionForExam(exam, db, qIndex, eIndex);
+							flag = addAnsToQuestionForExam(exam, db, qIndex, eIndex, stmt);
 						} else {
 							System.out.println("Invalid answer , please try again.");
 						}
@@ -109,15 +110,16 @@ public class ManualExam implements Examable {
 				Answers a = db.getQuestion(qIndex).getAnswer();
 				Questions q = new OpenQuestion(db.getQuestion(qIndex).getQuestion(), db.getQuestion(qIndex).difficulty,
 						a);
-				exam.addQuestion(q);
+				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
 				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 			}
 		}
-		exam.createExamFiles(exam, exName, soName, 0);
+//		exam.createExamFiles(exam, exName, soName, 0);
+		exam.createExamFiles(exam, exName, 0, stmt);
 
 	}
 
-	public boolean addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex) {
+	public boolean addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt) throws SQLException {
 		MultipleQuestion mq = (MultipleQuestion) db.getQuestion(qIndex);
 		MultipleQuestion eq = (MultipleQuestion) exam.getQuestion(eIndex);
 		int aIndex; // answer index
@@ -150,7 +152,7 @@ public class ManualExam implements Examable {
 				fContinue = false;
 				aIndex = db.getAnswerIndex(temp[answer - 1].getAnswer());
 				QuestionAnswer qa = mq.getQAnswer(aIndex);
-				res = eq.addAnswerToQuestion(qa.getQAnswer(), qa.getIsCorrect());
+				res = eq.addAnswerToQuestion(qa.getQAnswer(), qa.getIsCorrect(), 0, 0, stmt, !Program.uploadToDb);
 			}
 
 		} while (fContinue);

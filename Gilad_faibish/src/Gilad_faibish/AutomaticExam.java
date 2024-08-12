@@ -9,7 +9,7 @@ import java.util.Random;
 public class AutomaticExam implements Examable {
 
 	@Override
-	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException {
+	public void createExam(DataBase db, int numOfQuestions, Statement stmt) throws FileNotFoundException, SQLException {
 		Random r = new Random();
 		boolean flag = true;
 		int trueCounter;
@@ -22,8 +22,9 @@ public class AutomaticExam implements Examable {
 		
 		LocalDateTime today = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh_mm");
-		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
-		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
+		StringBuffer exName = new StringBuffer("" + today.format(dtf) + ".txt");
+//		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
+//		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
 		DataBase exam = new DataBase(exName.toString());
 
 		for (int i = 0; i < db.getNumOfQuestions(); i++) {
@@ -70,25 +71,25 @@ public class AutomaticExam implements Examable {
 			if (db.getQuestion(qIndex) instanceof MultipleQuestion) {
 				Questions q = new MultipleQuestion(db.getQuestion(qIndex).getQuestion(),
 						db.getQuestion(qIndex).difficulty);
-				exam.addQuestion(q);
+				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
 				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
-				addAnsToQuestionForExam(exam, db, qIndex, eIndex);
+				addAnsToQuestionForExam(exam, db, qIndex, eIndex, stmt);
 			} else {
 				Answers a = db.getQuestion(qIndex).getAnswer();
 				Questions q = new OpenQuestion(db.getQuestion(qIndex).getQuestion(), db.getQuestion(qIndex).difficulty,
 						a);
-				exam.addQuestion(q);
+				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
 				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 			}
 			temp[ans] = temp[counter - 1];
 			temp[counter - 1] = null;
 			counter--;
 		}
-		exam.createExamFiles(exam , exName , soName , 1);
+		exam.createExamFiles(exam, exName, 1, stmt);
 
 	}
 
-	public void addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex) {
+	public void addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt) throws SQLException {
 		MultipleQuestion mq = (MultipleQuestion) db.getQuestion(qIndex);
 		MultipleQuestion eq = (MultipleQuestion) exam.getQuestion(eIndex);
 		Random r = new Random();
@@ -107,7 +108,7 @@ public class AutomaticExam implements Examable {
 			answer = r.nextInt(counter);
 			aIndex = db.getAnswerIndex(temp[answer].getAnswer());
 			QuestionAnswer qa = mq.getQAnswer(aIndex);
-			eq.addAnswerToQuestion(qa.getQAnswer(), qa.getIsCorrect());
+			eq.addAnswerToQuestion(qa.getQAnswer(), qa.getIsCorrect(), 0, 0, stmt, !Program.uploadToDb);
 			temp[answer] = temp[counter - 1];
 			temp[counter - 1] = null;
 			counter--;

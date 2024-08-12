@@ -4,6 +4,6 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 
 public interface Examable  {
-	void createExam(DataBase db , int numOfQuestions, Statement stmt) throws FileNotFoundException;
+	void createExam(DataBase db , int numOfQuestions, Statement stmt) throws FileNotFoundException, SQLException;
 
 }

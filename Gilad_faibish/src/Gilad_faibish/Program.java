@@ -260,7 +260,7 @@ public class Program {
 		return res;
 	}
 
-	public static void createExam(DataBase db, Statement stmt) throws FileNotFoundException {
+	public static void createExam(DataBase db, Statement stmt) throws FileNotFoundException, SQLException {
 		boolean isValid = true;
 		int numOfQuestions = 0;
 		if (db.getNumOfQuestions() > 0 && db.getNumOfGoodQuestions() > 0) {
