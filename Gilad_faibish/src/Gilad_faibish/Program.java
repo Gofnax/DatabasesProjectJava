@@ -254,7 +254,7 @@ public class Program {
 
 		System.out.println("Please select a question number.");
 		int index = s.nextInt();
-		if (index >= db.getNumOfQuestions() || index < 0) {
+		if (index - 1 >= db.getNumOfQuestions() || index - 1 < 0) {
 			System.out.println("There is no question in the database with the number you selected.\n");
 			return false;
 		}
@@ -323,6 +323,26 @@ public class Program {
 		} else {
 			System.out.println("There are no good questions in the database.\n");
 		}
+	}
+	
+	public static void getExamFromDB(Statement stmt) throws SQLException {
+		int choice = 0, i = 1;
+		boolean inRange = false;
+		System.out.println("These are the exams that exist in the database:");
+		ResultSet rs1 = stmt.executeQuery("SELECT exam FROM examtb ORDER BY exam ASC");
+		while(rs1.next()) {
+			System.out.println("" + i + ") " + rs1.getString("exam"));
+			i++;
+		}
+		do {
+			System.out.println("Choose the number of the exam you want to download:");
+			choice = s.nextInt();
+			if (choice <= 0 || choice >= i) {
+				System.out.println("Invalid input , please try again.");
+			} else {
+				
+			}
+		}while(!inRange);
 	}
 
 	public static void printMenu() {
@@ -581,6 +601,9 @@ public class Program {
 					break;
 				case 7:
 					createExam(db, stmt);
+					break;
+				case 8:
+					getExamFromDB(stmt);
 					break;
 				case -1:
 					System.out.println("Thank you and goodbye. ");
