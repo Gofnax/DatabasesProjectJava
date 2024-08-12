@@ -80,7 +80,7 @@ public class DataBase implements Serializable {
 		return false;
 	}
 
-	public boolean addQuestion(Questions question) {
+	public boolean addQuestion(Questions question, int subjectid, int answerid, Statement stmt, boolean type) throws SQLException {
 		if (isQExist(question)) {
 			return false;
 		}
@@ -91,6 +91,12 @@ public class DataBase implements Serializable {
 		}
 
 		allQuestions[numOfQuestions++] = question;
+		if (question instanceof MultipleQuestion && type)
+			stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid + ", '" + question.getQuestion() + "', " + question.difficulty.ordinal() + ");");
+		
+		if(question instanceof OpenQuestion && type)	
+			stmt.executeUpdate("INSERT INTO oquestiontb VALUES (default, " + subjectid + ", " + answerid + ", '" + question.getQuestion() + "', " + question.difficulty.ordinal() + ");");
+		
 		return true;
 	}
 
