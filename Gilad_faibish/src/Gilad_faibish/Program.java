@@ -1,5 +1,6 @@
 package Gilad_faibish;
 
+import java.io.File;
 // El grande profesor
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -325,24 +328,46 @@ public class Program {
 		}
 	}
 	
-	public static void getExamFromDB(Statement stmt) throws SQLException {
+	public static void getExamFromDB(DataBase db, Statement stmt) throws SQLException, FileNotFoundException {
 		int choice = 0, i = 1;
 		boolean inRange = false;
+		ArrayList<String> examNames = new ArrayList<String>();
 		System.out.println("These are the exams that exist in the database:");
-		ResultSet rs1 = stmt.executeQuery("SELECT exam FROM examtb ORDER BY exam ASC");
+		int subjectid = getSubjectId(db, stmt);
+		ResultSet rs1 = stmt.executeQuery("SELECT exam FROM examtb WHERE subjectid = '" + subjectid + "' ORDER BY exam ASC");
 		while(rs1.next()) {
+			examNames.add(i - 1, rs1.getString("exam"));
 			System.out.println("" + i + ") " + rs1.getString("exam"));
 			i++;
 		}
-		do {
-			System.out.println("Choose the number of the exam you want to download:");
-			choice = s.nextInt();
-			if (choice <= 0 || choice >= i) {
-				System.out.println("Invalid input , please try again.");
-			} else {
-				
-			}
-		}while(!inRange);
+		rs1.close();
+		System.out.println();
+		
+		if(i > 1) {	// if there are no exams in the DB
+			do {
+				System.out.println("Choose the number of the exam you want to download:");
+				choice = s.nextInt();
+				if (choice <= 0 || choice >= i) {
+					System.out.println("Invalid input , please try again.");
+				} else {
+					inRange = true;
+				}
+			}while(!inRange);
+		}
+		
+		ResultSet rs2 = stmt.executeQuery("SELECT * FROM examtb WHERE exam = '" + examNames.get(choice - 1) + "' AND subjectid = '" + subjectid + "';");
+		rs2.next();
+		String examString = rs2.getString("examcontent");
+		String solutionString = rs2.getString("solutioncontent");
+		
+		File ex = new File("exam_" + examNames.get(choice - 1));
+		File so = new File("solution_" + examNames.get(choice - 1));
+		PrintWriter pw = new PrintWriter(ex);
+		PrintWriter pw1 = new PrintWriter(so);
+		pw.print(examString);
+		pw1.print(solutionString);
+		pw.close();
+		pw1.close();
 	}
 
 	public static void printMenu() {
@@ -354,6 +379,7 @@ public class Program {
 		System.out.println("5) Delete an answer to a question that exist in the database. ");
 		System.out.println("6) Delete a question from the database. ");
 		System.out.println("7) Create an exam manually. ");
+		System.out.println("8) Download an exam. ");
 		System.out.println("-1) Exit. ");
 	}
 
@@ -603,7 +629,7 @@ public class Program {
 					createExam(db, stmt);
 					break;
 				case 8:
-					getExamFromDB(stmt);
+					getExamFromDB(db, stmt);
 					break;
 				case -1:
 					System.out.println("Thank you and goodbye. ");
