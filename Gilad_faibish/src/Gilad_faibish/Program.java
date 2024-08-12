@@ -586,6 +586,11 @@ public class Program {
 				default:
 					System.out.println("Invalid input , please choose again.\n");
 				}
+			} catch (SQLException ex) {
+				while (ex != null) {
+					System.out.println("SQL exception: " + ex.getMessage());
+					ex = ex.getNextException();
+				}
 			} catch (InputMismatchException e) {
 				System.out.println("Invalid input , please try again.\n");
 				s.nextLine();
