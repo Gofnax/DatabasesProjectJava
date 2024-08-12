@@ -24,8 +24,7 @@ public class Program {
 		for (int i = 0; i < db.getNumOfQuestions(); i++) {
 			if (db.getAllQuestions()[i] instanceof MultipleQuestion) {
 				System.out.println((mqIndex + 1) + ") " + db.getAllQuestions()[i].getQuestion());
-				System.out.println("   serial number: " + db.getAllQuestions()[i].serialNum + " | difficuly level: "
-						+ db.getAllQuestions()[i].difficulty + "\n");
+				System.out.println("   difficuly level: " + db.getAllQuestions()[i].difficulty + "\n");
 				mq[mqIndex++] = (MultipleQuestion) db.getAllQuestions()[i];
 				for (int j = 0; j < mq[mqIndex - 1].getNumOfQAnswers(); j++) {
 					System.out.println((j + 1) + ") " + mq[mqIndex - 1].getAllQAnswers()[j].toString());
@@ -316,30 +315,30 @@ public class Program {
 				}
 
 			} while (isValid);
-			Questions.setCounter(db.getNumOfQuestions());
 		} else if (db.getNumOfQuestions() == 0) {
 			System.out.println("There are no questions in the database.\n");
 		} else {
 			System.out.println("There are no good questions in the database.\n");
 		}
 	}
-	
+
 	public static void getExamFromDB(DataBase db, Statement stmt) throws SQLException, FileNotFoundException {
 		int choice = 0, i = 1;
 		boolean inRange = false;
 		ArrayList<String> examNames = new ArrayList<String>();
 		System.out.println("These are the exams that exist in the database:");
 		int subjectid = getSubjectId(db, stmt);
-		ResultSet rs1 = stmt.executeQuery("SELECT exam FROM examtb WHERE subjectid = '" + subjectid + "' ORDER BY exam ASC");
-		while(rs1.next()) {
+		ResultSet rs1 = stmt
+				.executeQuery("SELECT exam FROM examtb WHERE subjectid = '" + subjectid + "' ORDER BY exam ASC");
+		while (rs1.next()) {
 			examNames.add(i - 1, rs1.getString("exam"));
 			System.out.println("" + i + ") " + rs1.getString("exam"));
 			i++;
 		}
 		rs1.close();
 		System.out.println();
-		
-		if(i > 1) {	// if there are no exams in the DB
+
+		if (i > 1) { // if there are no exams in the DB
 			do {
 				System.out.println("Choose the number of the exam you want to download:");
 				choice = s.nextInt();
@@ -348,14 +347,15 @@ public class Program {
 				} else {
 					inRange = true;
 				}
-			}while(!inRange);
+			} while (!inRange);
 		}
-		
-		ResultSet rs2 = stmt.executeQuery("SELECT * FROM examtb WHERE exam = '" + examNames.get(choice - 1) + "' AND subjectid = '" + subjectid + "';");
+
+		ResultSet rs2 = stmt.executeQuery("SELECT * FROM examtb WHERE exam = '" + examNames.get(choice - 1)
+				+ "' AND subjectid = '" + subjectid + "';");
 		rs2.next();
 		String examString = rs2.getString("examcontent");
 		String solutionString = rs2.getString("solutioncontent");
-		
+
 		File ex = new File("exam_" + examNames.get(choice - 1));
 		File so = new File("solution_" + examNames.get(choice - 1));
 		PrintWriter pw = new PrintWriter(ex);
@@ -444,15 +444,6 @@ public class Program {
 
 	}
 
-	public static DataBase[] createSubjectsArr() throws FileNotFoundException, IOException, ClassNotFoundException {
-		DataBase[] allSubjects;
-		ObjectInputStream inFile = new ObjectInputStream(new FileInputStream("SubjectsDb.dat"));
-		allSubjects = (DataBase[]) inFile.readObject();
-		inFile.close();
-		return allSubjects;
-
-	}
-
 	public static Connection initConnection() {
 		Connection conn = null;
 		try {
@@ -522,7 +513,6 @@ public class Program {
 		ResultSet rs3 = stmt
 				.executeQuery("SELECT * FROM oquestiontb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
 		while (rs3.next()) {
-			// maybe add answerid in serialNum attribute
 			String questionText = rs3.getString("question");
 			int difficulty = rs3.getInt("difficulty");
 			String answerText = rs3.getString("answer");

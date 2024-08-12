@@ -1,9 +1,7 @@
 package Gilad_faibish;
 
-public abstract class Questions{
+public abstract class Questions {
 	protected String question;
-	protected static int counter;
-	protected int serialNum;
 
 	public enum eDifficulty {
 		Easy, Regular, Hard
@@ -14,16 +12,6 @@ public abstract class Questions{
 	public Questions(String question, eDifficulty difficulty) {
 		this.question = question;
 		this.difficulty = difficulty;
-		serialNum = ++counter;
-	}
-
-	public int setSerialNum(int num) {
-		this.serialNum = num;
-		return this.serialNum;
-	}
-
-	public static void setCounter(int numOfQuestions) {
-		counter = numOfQuestions;
 	}
 
 	public String getQuestion() {
@@ -44,8 +32,7 @@ public abstract class Questions{
 			return false;
 		}
 		Questions temp = (Questions) obj;
-		return ((this.question.equals(temp.question)) && (this.difficulty == temp.difficulty)
-				&& (this.serialNum == temp.serialNum));
+		return ((this.question.equals(temp.question)) && (this.difficulty == temp.difficulty));
 	}
 
 }

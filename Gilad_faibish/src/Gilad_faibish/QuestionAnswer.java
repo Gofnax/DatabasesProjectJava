@@ -1,6 +1,6 @@
 package Gilad_faibish;
 
-public class QuestionAnswer{
+public class QuestionAnswer {
 	private Answers answer;
 	private boolean isCorrect;
 

@@ -17,14 +17,11 @@ public class AutomaticExam implements Examable {
 		int ans;
 		int counter = 0;
 		int qIndex; // question index
-		int serialNum;
 		Questions temp[] = new Questions[db.getNumOfQuestions()];
 
 		LocalDateTime today = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh_mm");
 		StringBuffer exName = new StringBuffer("" + today.format(dtf) + ".txt");
-//		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
-//		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
 		DataBase exam = new DataBase(exName.toString());
 
 		for (int i = 0; i < db.getNumOfQuestions(); i++) {
@@ -66,20 +63,17 @@ public class AutomaticExam implements Examable {
 			} while (!flag);
 
 			qIndex = db.getQuestionIndex(temp[ans].getQuestion());
-			serialNum = db.getAllQuestions()[qIndex].serialNum;
 
 			if (db.getQuestion(qIndex) instanceof MultipleQuestion) {
 				Questions q = new MultipleQuestion(db.getQuestion(qIndex).getQuestion(),
 						db.getQuestion(qIndex).difficulty);
 				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
-				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 				addAnsToQuestionForExam(exam, db, qIndex, eIndex, stmt);
 			} else {
 				Answers a = db.getQuestion(qIndex).getAnswer();
 				Questions q = new OpenQuestion(db.getQuestion(qIndex).getQuestion(), db.getQuestion(qIndex).difficulty,
 						a);
 				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
-				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 			}
 			temp[ans] = temp[counter - 1];
 			temp[counter - 1] = null;

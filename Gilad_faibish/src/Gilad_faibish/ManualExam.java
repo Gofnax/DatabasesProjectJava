@@ -17,14 +17,11 @@ public class ManualExam implements Examable {
 		int minAns;
 		int userChoice;
 		int qIndex; // question index
-		int serialNum;
 		Questions temp[] = new Questions[db.getNumOfQuestions()];
 
 		LocalDateTime today = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh_mm");
 		StringBuffer exName = new StringBuffer("" + today.format(dtf) + ".txt");
-//		StringBuffer exName = new StringBuffer("exam_" + today.format(dtf) + ".txt");
-//		StringBuffer soName = new StringBuffer("solution_" + today.format(dtf) + ".txt");
 		DataBase exam = new DataBase(exName.toString());
 
 		for (int eIndex = 0; eIndex < numOfQuestions; eIndex++) {// eIndex = exam index
@@ -42,13 +39,12 @@ public class ManualExam implements Examable {
 							MultipleQuestion mq = (MultipleQuestion) db.getQuestion(j);
 							temp[counter++] = mq;
 							System.out.println(counter + ") " + mq.getQuestion());
-							System.out.println("Serial number: " + mq.serialNum + " difficulty: " + mq.difficulty
-									+ " (multiple choice question with " + mq.getNumOfQAnswers() + "answers.)\n");
+							System.out.println("difficulty: " + mq.difficulty + " (multiple choice question with "
+									+ mq.getNumOfQAnswers() + "answers.)\n");
 						} else if (db.getQuestion(j) instanceof OpenQuestion) {
 							temp[counter++] = db.getQuestion(j);
 							System.out.println(counter + ") " + db.getQuestion(j).getQuestion());
-							System.out.println("Serial number: " + db.getQuestion(j).serialNum + " difficulty: "
-									+ db.getQuestion(j).difficulty + " (open question)\n");
+							System.out.println("difficulty: " + db.getQuestion(j).difficulty + " (open question)\n");
 						}
 					}
 				}
@@ -72,13 +68,11 @@ public class ManualExam implements Examable {
 			} while (flag != true);
 
 			qIndex = db.getQuestionIndex(temp[userChoice - 1].getQuestion());
-			serialNum = db.getAllQuestions()[qIndex].serialNum;
 
 			if (db.getQuestion(qIndex) instanceof MultipleQuestion) {
 				Questions q = new MultipleQuestion(db.getQuestion(qIndex).getQuestion(),
 						db.getQuestion(qIndex).difficulty);
 				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
-				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 				minAns = 0;
 				while (minAns < 4) {
 					flag = addAnsToQuestionForExam(exam, db, qIndex, eIndex, stmt);
@@ -111,10 +105,8 @@ public class ManualExam implements Examable {
 				Questions q = new OpenQuestion(db.getQuestion(qIndex).getQuestion(), db.getQuestion(qIndex).difficulty,
 						a);
 				exam.addQuestion(q, 0, 0, stmt, !Program.uploadToDb);
-				exam.getAllQuestions()[eIndex].setSerialNum(serialNum);
 			}
 		}
-//		exam.createExamFiles(exam, exName, soName, 0);
 		exam.createExamFiles(exam, exName, 0, stmt, db.getSubject());
 
 	}

@@ -183,8 +183,7 @@ public class DataBase{
 		StringBuffer sb = new StringBuffer("All the questions with their answers are:\n\n");
 
 		for (int i = 0; i < numOfQuestions; i++) {
-			sb.append(i + 1).append(") ").append(allQuestions[i].getQuestion()).append("\n   serial number: ")
-					.append(allQuestions[i].serialNum).append(" | difficulty level: ")
+			sb.append(i + 1).append(") ").append(allQuestions[i].getQuestion()).append("\n difficulty level: ")
 					.append(allQuestions[i].difficulty);
 			if (allQuestions[i] instanceof MultipleQuestion) {
 				MultipleQuestion mq = (MultipleQuestion) allQuestions[i];
@@ -226,8 +225,7 @@ public class DataBase{
 	public String examToString(int exType) {// exType = exam type (auto\manual).
 		StringBuffer sb = new StringBuffer("Questions:\n");
 		for (int i = 0; i < numOfQuestions; i++) {
-			sb.append("\n").append((i + 1) + ") " + allQuestions[i].getQuestion()).append("\n   serial number: ")
-					.append(allQuestions[i].serialNum).append(" | difficulty level: ")
+			sb.append("\n").append((i + 1) + ") " + allQuestions[i].getQuestion()).append("\n difficulty level: ")
 					.append(allQuestions[i].difficulty).append("\n");
 			if (allQuestions[i] instanceof MultipleQuestion) {
 				MultipleQuestion mq = (MultipleQuestion) allQuestions[i];

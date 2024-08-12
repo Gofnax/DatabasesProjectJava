@@ -3,7 +3,7 @@ package Gilad_faibish;
 import java.sql.*;
 import java.util.Arrays;
 
-public class MultipleQuestion extends Questions{
+public class MultipleQuestion extends Questions {
 	private QuestionAnswer[] allQAnswers;
 	private int numOfQAnswers;
 	private final int MAX_ANSWERS = 10;
