@@ -115,7 +115,7 @@ public class ManualExam implements Examable {
 			}
 		}
 //		exam.createExamFiles(exam, exName, soName, 0);
-		exam.createExamFiles(exam, exName, 0, stmt);
+		exam.createExamFiles(exam, exName, 0, stmt, db.getSubject());
 
 	}
 

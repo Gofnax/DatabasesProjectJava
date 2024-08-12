@@ -280,7 +280,7 @@ public class DataBase implements Serializable {
 		return sb.toString();
 	}
 
-	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt)
+	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt, String subject)
 			throws FileNotFoundException, SQLException {
 		// exType = exam type (auto\manual).
 
@@ -295,7 +295,7 @@ public class DataBase implements Serializable {
 		pw.close();
 		pw1.close();
 
-		ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
+		ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + subject + "';");
 		rs1.next();
 		int subjectid = rs1.getInt("subjectid");
 

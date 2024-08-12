@@ -1,0 +1,38 @@
+Questions:
+
+1) Which of the following countries is located in America?
+   serial number: 22 | difficulty level: Easy
+
+Answers:
+
+1) Iran
+2) Spain
+3) Egypt
+4) Israel
+5) None of the above
+
+2) Which of the following countries is the largest?
+   serial number: 3 | difficulty level: Easy
+
+Answers:
+
+1) Spain
+2) Colombia
+3) United States
+4) Lebanon
+5) None of the above
+
+3) What is the name of Peru?
+   serial number: 2 | difficulty level: Easy
+
+4) In which of the following countries is Hebrew considered their mother tongue?
+   serial number: 44 | difficulty level: Hard
+
+Answers:
+
+1) Egypt
+2) Israel
+3) Colombia
+4) Peru
+5) None of the above
+

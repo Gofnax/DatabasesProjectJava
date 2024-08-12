@@ -85,7 +85,7 @@ public class AutomaticExam implements Examable {
 			temp[counter - 1] = null;
 			counter--;
 		}
-		exam.createExamFiles(exam, exName, 1, stmt);
+		exam.createExamFiles(exam, exName, 1, stmt, db.getSubject());
 
 	}
 
