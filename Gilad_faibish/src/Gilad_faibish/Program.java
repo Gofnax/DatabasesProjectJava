@@ -41,7 +41,7 @@ public class Program {
 		System.out.println(db.toString());
 	}
 
-	public static boolean addAnswerToDb(DataBase db, Statement stmt) {
+	public static boolean addAnswerToDb(DataBase db, Statement stmt) throws SQLException {
 		System.out.println(db.ansToString());
 
 		System.out.println("please write your answer: ");
@@ -313,8 +313,6 @@ public class Program {
 			System.out.println("There are no good questions in the database.\n");
 		}
 	}
-
-
 
 	public static void printMenu() {
 		System.out.println("Choose an option from the following: ");

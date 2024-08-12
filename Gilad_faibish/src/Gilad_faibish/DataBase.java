@@ -150,7 +150,7 @@ public class DataBase implements Serializable {
 		return true;
 	}
 	
-	public boolean addAnswerWithDB(Answers a, Statement stmt) {
+	public boolean addAnswerWithDB(Answers a, Statement stmt) throws SQLException {
 		if (this.isAExist(a)) {
 			return false;
 		}
@@ -161,19 +161,10 @@ public class DataBase implements Serializable {
 		}
 
 		allAnswers[numOfAnswers++] = a;
-		try {
 			ResultSet rs = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
 			rs.next();
 			int subjectid = rs.getInt("subjectid");
 			stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid + ", '" + a.getAnswer() + "');");
-		} catch (SQLException ex) {
-			while (ex != null) {
-				System.out.println("SQL exception: " + ex.getMessage());
-				ex = ex.getNextException();
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
 		return true;
 	}
 
