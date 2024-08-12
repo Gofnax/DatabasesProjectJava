@@ -103,7 +103,7 @@ public class DataBase implements Serializable {
 		return true;
 	}
 
-	public boolean removeQuestion(int index) {
+	public boolean removeQuestion(int index, int questionid, Statement stmt) {
 		if (index >= this.numOfQuestions || index < 0)
 			return false;
 

@@ -245,7 +245,7 @@ public class Program {
 		return true;
 	}
 
-	public static boolean deleteQuestionFromDb(DataBase db) {
+	public static boolean deleteQuestionFromDb(DataBase db, Statement stmt) throws SQLException {
 		if (db.getNumOfQuestions() == 0) {
 			System.out.println("There are no questions in the database.\n");
 			return false;
@@ -254,14 +254,18 @@ public class Program {
 
 		System.out.println("Please select a question number.");
 		int index = s.nextInt();
-
-		boolean res = db.removeQuestion(index - 1);
-
-		if (res) {
-			System.out.println("The question has been deleted from the database.\n");
-			return res;
-		} else
+		if (index >= db.getNumOfQuestions() || index < 0) {
 			System.out.println("There is no question in the database with the number you selected.\n");
+			return false;
+		}
+		int subjectid = getSubjectId(db, stmt);
+		int questionid = getQuestionId(db.getQuestion(index - 1), subjectid, stmt);
+
+		boolean res = db.removeQuestion(index - 1, questionid, stmt);
+
+		if (res)
+			System.out.println("The question has been deleted from the database.\n");
+
 		return res;
 	}
 
@@ -551,7 +555,7 @@ public class Program {
 		Statement stmt = createStatement(conn);
 		System.out.println("Welcome to our exams creation system.\n ");
 		DataBase db = chooseSubject(stmt);
-		
+
 		do {
 			try {
 				printMenu();
@@ -573,7 +577,7 @@ public class Program {
 					deleteAnsToQuestionFromDb(db, stmt);
 					break;
 				case 6:
-					deleteQuestionFromDb(db);
+					deleteQuestionFromDb(db, stmt);
 					break;
 				case 7:
 					createExam(db, stmt);
