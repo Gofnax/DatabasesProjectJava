@@ -120,8 +120,9 @@ public class Program {
 
 		if (db.getAllQuestions()[qIndex] instanceof MultipleQuestion) {
 			MultipleQuestion mq = (MultipleQuestion) db.getAllQuestions()[qIndex];
-			int questionid = getQuestionId(mq, 1, stmt);
-			int answerid = getAnswerId(temp[aIndex - 1].getAnswer(), stmt);
+			int subjectid = getSubjectId(db, stmt);
+			int questionid = getQuestionId(mq, subjectid, stmt);
+			int answerid = getAnswerId(temp[aIndex - 1].getAnswer(), stmt, subjectid);
 			mq.addAnswerToQuestion(temp[aIndex - 1], isCorrect, answerid, questionid, stmt, uploadToDb);
 			System.out.println("Answer successfully added.\n ");
 		}
@@ -229,9 +230,10 @@ public class Program {
 
 		if (db.getAllQuestions()[qIndex] instanceof MultipleQuestion) {
 			MultipleQuestion mq = (MultipleQuestion) db.getAllQuestions()[qIndex];
-			int questionid = getQuestionId(mq, 1, stmt);
+			int subjectid = getSubjectId(db, stmt);
+			int questionid = getQuestionId(mq, subjectid, stmt);
 			String ans = mq.getAllQAnswers()[aIndex - 1].getQAnswer().getAnswer();
-			int answerid = getAnswerId(ans, stmt);
+			int answerid = getAnswerId(ans, stmt, subjectid);
 			mq.removeAnswerToQuestion(aIndex - 1, answerid, questionid, stmt);
 			System.out.println("The answer was successfully removed");
 		}
@@ -486,16 +488,24 @@ public class Program {
 		}
 		rs3.close();
 	}
+	
+	public static int getSubjectId(DataBase db, Statement stmt) throws SQLException {
+		ResultSet rs = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + db.getSubject() + "';");
+		rs.next();
+		int subjectid = rs.getInt("subjectid");
+		rs.close();
+		return subjectid;
+	}
 
-	public static int getQuestionId(Questions question, int qType, Statement stmt) throws SQLException {
+	public static int getQuestionId(Questions question, int subjectid, Statement stmt) throws SQLException {
 		ResultSet rs;
 		int questionid;
 		if (question instanceof MultipleQuestion) {
-			rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + question.getQuestion() + "';");
+			rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + question.getQuestion() + "' AND subjectid = " + subjectid + ";");
 			rs.next();
 			questionid = rs.getInt("mquestionid");
 		} else {
-			rs = stmt.executeQuery("SELECT oquestionid FROM oquestiontb WHERE question = '" + question.getQuestion() + "';");
+			rs = stmt.executeQuery("SELECT oquestionid FROM oquestiontb WHERE question = '" + question.getQuestion() + "' AND subjectid = " + subjectid + ";");
 			rs.next();
 			questionid = rs.getInt("oquestionid");
 		}
@@ -503,8 +513,8 @@ public class Program {
 		return questionid;
 	}
 
-	public static int getAnswerId(String answer, Statement stmt) throws SQLException {
-		ResultSet rs = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answer + "';");
+	public static int getAnswerId(String answer, Statement stmt, int subjectid) throws SQLException {
+		ResultSet rs = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answer + "' AND subjectid = " + subjectid + ";");
 		rs.next();
 		int answerid = rs.getInt("answerid");
 		rs.close();
