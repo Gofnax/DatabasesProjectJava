@@ -3,12 +3,10 @@ package Gilad_faibish;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.sql.*;
 import java.util.Arrays;
 
-@SuppressWarnings("serial")
-public class DataBase implements Serializable {
+public class DataBase{
 	private String subject;
 	private Questions[] allQuestions;
 	private int numOfQuestions;
@@ -285,8 +283,6 @@ public class DataBase implements Serializable {
 
 	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt, String subject)
 			throws FileNotFoundException, SQLException {
-		// exType = exam type (auto\manual).
-
 		File ex = new File("exam_" + exName.toString());
 		File so = new File("solution_" + exName.toString());
 		PrintWriter pw = new PrintWriter(ex);

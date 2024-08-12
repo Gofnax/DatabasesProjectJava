@@ -1,9 +1,6 @@
 package Gilad_faibish;
 
-import java.io.Serializable;
-
-@SuppressWarnings("serial")
-public abstract class Questions implements Serializable{
+public abstract class Questions{
 	protected String question;
 	protected static int counter;
 	protected int serialNum;

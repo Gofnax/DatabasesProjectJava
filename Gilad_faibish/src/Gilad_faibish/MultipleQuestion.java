@@ -1,13 +1,9 @@
 package Gilad_faibish;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 
-@SuppressWarnings("serial")
-public class MultipleQuestion extends Questions implements Serializable {
+public class MultipleQuestion extends Questions{
 	private QuestionAnswer[] allQAnswers;
 	private int numOfQAnswers;
 	private final int MAX_ANSWERS = 10;

@@ -1,9 +1,6 @@
 package Gilad_faibish;
 
-import java.io.Serializable;
-
-@SuppressWarnings("serial")
-public class OpenQuestion extends Questions implements Serializable {
+public class OpenQuestion extends Questions{
 	private Answers answer;
 
 	public OpenQuestion(String question, eDifficulty difficulty, Answers answer) {

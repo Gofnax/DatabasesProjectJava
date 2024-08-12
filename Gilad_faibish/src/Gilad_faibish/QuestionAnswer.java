@@ -1,9 +1,6 @@
 package Gilad_faibish;
 
-import java.io.Serializable;
-
-@SuppressWarnings("serial")
-public class QuestionAnswer implements Serializable {
+public class QuestionAnswer{
 	private Answers answer;
 	private boolean isCorrect;
 

@@ -1,17 +1,13 @@
 package Gilad_faibish;
 
 import java.io.File;
-// El grande profesor
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.sql.*;
 
@@ -378,7 +374,7 @@ public class Program {
 		System.out.println("4) Add a new question to the database. ");
 		System.out.println("5) Delete an answer to a question that exist in the database. ");
 		System.out.println("6) Delete a question from the database. ");
-		System.out.println("7) Create an exam manually. ");
+		System.out.println("7) Create an exam. ");
 		System.out.println("8) Download an exam. ");
 		System.out.println("-1) Exit. ");
 	}
@@ -585,7 +581,6 @@ public class Program {
 			boolean isCorrect = rs4.getBoolean("iscorrect");
 			String answerText = rs4.getString("answer");
 			Answers tmpAns = db.getAnswer(db.getAnswerIndex(answerText));
-//			int questionIndex = db.getNumOfQuestions() - 1;
 			int questionIndex = rs4.getInt("mquestionid") + offset;
 			((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect, 0, 0, stmt,
 					!uploadToDb);
