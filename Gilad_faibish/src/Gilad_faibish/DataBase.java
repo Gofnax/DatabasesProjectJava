@@ -80,7 +80,8 @@ public class DataBase implements Serializable {
 		return false;
 	}
 
-	public boolean addQuestion(Questions question, int subjectid, int answerid, Statement stmt, boolean type) throws SQLException {
+	public boolean addQuestion(Questions question, int subjectid, int answerid, Statement stmt, boolean type)
+			throws SQLException {
 		if (isQExist(question)) {
 			return false;
 		}
@@ -92,11 +93,13 @@ public class DataBase implements Serializable {
 
 		allQuestions[numOfQuestions++] = question;
 		if (question instanceof MultipleQuestion && type)
-			stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid + ", '" + question.getQuestion() + "', " + question.difficulty.ordinal() + ");");
-		
-		if(question instanceof OpenQuestion && type)	
-			stmt.executeUpdate("INSERT INTO oquestiontb VALUES (default, " + subjectid + ", " + answerid + ", '" + question.getQuestion() + "', " + question.difficulty.ordinal() + ");");
-		
+			stmt.executeUpdate("INSERT INTO mquestiontb VALUES (default, " + subjectid + ", '" + question.getQuestion()
+					+ "', " + question.difficulty.ordinal() + ");");
+
+		if (question instanceof OpenQuestion && type)
+			stmt.executeUpdate("INSERT INTO oquestiontb VALUES (default, " + subjectid + ", " + answerid + ", '"
+					+ question.getQuestion() + "', " + question.difficulty.ordinal() + ");");
+
 		return true;
 	}
 
@@ -155,7 +158,7 @@ public class DataBase implements Serializable {
 		allAnswers[numOfAnswers++] = a;
 		return true;
 	}
-	
+
 	public boolean addAnswerWithDB(Answers a, Statement stmt) throws SQLException {
 		if (this.isAExist(a)) {
 			return false;
@@ -167,10 +170,10 @@ public class DataBase implements Serializable {
 		}
 
 		allAnswers[numOfAnswers++] = a;
-			ResultSet rs = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
-			rs.next();
-			int subjectid = rs.getInt("subjectid");
-			stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid + ", '" + a.getAnswer() + "');");
+		ResultSet rs = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
+		rs.next();
+		int subjectid = rs.getInt("subjectid");
+		stmt.executeUpdate("INSERT INTO answertb VALUES (default, " + subjectid + ", '" + a.getAnswer() + "');");
 		return true;
 	}
 
@@ -277,7 +280,8 @@ public class DataBase implements Serializable {
 		return sb.toString();
 	}
 
-	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt) throws FileNotFoundException, SQLException {
+	public void createExamFiles(DataBase exam, StringBuffer exName, int exType, Statement stmt)
+			throws FileNotFoundException, SQLException {
 		// exType = exam type (auto\manual).
 
 		File ex = new File("exam_" + exName.toString());
@@ -290,12 +294,13 @@ public class DataBase implements Serializable {
 		pw1.print(solutionString);
 		pw.close();
 		pw1.close();
-		
+
 		ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + this.subject + "';");
 		rs1.next();
 		int subjectid = rs1.getInt("subjectid");
-		
-		stmt.executeUpdate("INSERT INTO examtb VALUES (default, " + subjectid + ", '" + exName + "', '" + examString + "', '" + solutionString + "');");
+
+		stmt.executeUpdate("INSERT INTO examtb VALUES (default, " + subjectid + ", '" + exName + "', '" + examString
+				+ "', '" + solutionString + "');");
 	}
 
 	@Override

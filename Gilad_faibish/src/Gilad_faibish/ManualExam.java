@@ -119,7 +119,8 @@ public class ManualExam implements Examable {
 
 	}
 
-	public boolean addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt) throws SQLException {
+	public boolean addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt)
+			throws SQLException {
 		MultipleQuestion mq = (MultipleQuestion) db.getQuestion(qIndex);
 		MultipleQuestion eq = (MultipleQuestion) exam.getQuestion(eIndex);
 		int aIndex; // answer index

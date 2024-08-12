@@ -34,8 +34,8 @@ public class MultipleQuestion extends Questions implements Serializable {
 		return false;
 	}
 
-	public boolean addAnswerToQuestion(Answers a, boolean iscorrect, int answerid, int questionid, Statement stmt, boolean type)
-			throws SQLException {
+	public boolean addAnswerToQuestion(Answers a, boolean iscorrect, int answerid, int questionid, Statement stmt,
+			boolean type) throws SQLException {
 		QuestionAnswer qa = new QuestionAnswer(a, iscorrect);
 
 		if (isQAExist(qa))
@@ -43,9 +43,9 @@ public class MultipleQuestion extends Questions implements Serializable {
 
 		if (numOfQAnswers < MAX_ANSWERS) {
 			this.allQAnswers[numOfQAnswers++] = qa;
-			if(type)
-				stmt.executeUpdate(
-						"INSERT INTO mquestion_answertb VALUES (" + questionid + ", " + answerid + ", " + iscorrect + ");");
+			if (type)
+				stmt.executeUpdate("INSERT INTO mquestion_answertb VALUES (" + questionid + ", " + answerid + ", "
+						+ iscorrect + ");");
 			return true;
 		} else
 			return false;

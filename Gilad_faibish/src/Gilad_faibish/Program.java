@@ -130,7 +130,7 @@ public class Program {
 
 	}
 
-	public static boolean addQuestionToDb(DataBase db) {
+	public static boolean addQuestionToDb(DataBase db, Statement stmt) throws SQLException {
 		eDifficulty difficulty = Questions.eDifficulty.Easy;
 		int qType; // question type
 		boolean flag;
@@ -170,10 +170,11 @@ public class Program {
 		s.nextLine();
 		String question = s.nextLine();
 
+		int ans = 0;
 		if (qType == 1) {
 			System.out.println(db.ansToString());
 			System.out.println("Please select the answer number that you want to add.");
-			int ans = s.nextInt();
+			ans = s.nextInt();
 			if (ans < 1 || ans > db.getNumOfAnswers()) {
 				System.out.println("Invalid Input.\n");
 				return false;
@@ -182,8 +183,12 @@ public class Program {
 		} else {
 			q = new MultipleQuestion(question, difficulty);
 		}
+		int subjectid = getSubjectId(db, stmt);
+		int answerid = 0;
+		if (q instanceof OpenQuestion)
+			answerid = getAnswerId(db.getAnswer(ans - 1).getAnswer(), stmt, subjectid);
 
-		boolean res = db.addQuestion(q);
+		boolean res = db.addQuestion(q, subjectid, answerid, stmt, uploadToDb);
 		if (res) {
 			System.out.println("Question successfully added.\n ");
 			return true;
@@ -457,14 +462,6 @@ public class Program {
 		return allSubjects;
 	}
 
-	public static int getSubjectId(Statement stmt, DataBase db) throws SQLException {
-		ResultSet rs1 = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + db.getSubject() + "';");
-		rs1.next();
-		int subjectid = rs1.getInt("subjectid");
-		rs1.close();
-		return subjectid;
-	}
-
 	public static void getAnswersDB(Statement stmt, DataBase db, int subjectid) throws SQLException {
 		ResultSet rs2 = stmt.executeQuery("SELECT * FROM answertb WHERE subjectid = " + subjectid + ";");
 		while (rs2.next()) {
@@ -484,11 +481,11 @@ public class Program {
 			int difficulty = rs3.getInt("difficulty");
 			String answerText = rs3.getString("answer");
 			db.addQuestion(new OpenQuestion(questionText, eDifficulty.values()[difficulty],
-					db.getAnswer(db.getAnswerIndex(answerText))));
+					db.getAnswer(db.getAnswerIndex(answerText))), 0, 0, stmt, !uploadToDb);
 		}
 		rs3.close();
 	}
-	
+
 	public static int getSubjectId(DataBase db, Statement stmt) throws SQLException {
 		ResultSet rs = stmt.executeQuery("SELECT subjectid FROM subjecttb WHERE subject = '" + db.getSubject() + "';");
 		rs.next();
@@ -501,11 +498,13 @@ public class Program {
 		ResultSet rs;
 		int questionid;
 		if (question instanceof MultipleQuestion) {
-			rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + question.getQuestion() + "' AND subjectid = " + subjectid + ";");
+			rs = stmt.executeQuery("SELECT mquestionid FROM mquestiontb WHERE question = '" + question.getQuestion()
+					+ "' AND subjectid = " + subjectid + ";");
 			rs.next();
 			questionid = rs.getInt("mquestionid");
 		} else {
-			rs = stmt.executeQuery("SELECT oquestionid FROM oquestiontb WHERE question = '" + question.getQuestion() + "' AND subjectid = " + subjectid + ";");
+			rs = stmt.executeQuery("SELECT oquestionid FROM oquestiontb WHERE question = '" + question.getQuestion()
+					+ "' AND subjectid = " + subjectid + ";");
 			rs.next();
 			questionid = rs.getInt("oquestionid");
 		}
@@ -514,7 +513,8 @@ public class Program {
 	}
 
 	public static int getAnswerId(String answer, Statement stmt, int subjectid) throws SQLException {
-		ResultSet rs = stmt.executeQuery("SELECT answerid FROM answertb WHERE answer = '" + answer + "' AND subjectid = " + subjectid + ";");
+		ResultSet rs = stmt.executeQuery(
+				"SELECT answerid FROM answertb WHERE answer = '" + answer + "' AND subjectid = " + subjectid + ";");
 		rs.next();
 		int answerid = rs.getInt("answerid");
 		rs.close();
@@ -522,18 +522,23 @@ public class Program {
 	}
 
 	public static void getMQuestionsDB(Statement stmt, DataBase db, int subjectid) throws SQLException {
-		ResultSet rs4 = stmt.executeQuery("SELECT question, difficulty, isCorrect, answer FROM mquestiontb NATURAL JOIN"
-				+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
+		int offset = db.getNumOfQuestions() - 1;
+		ResultSet rs4 = stmt.executeQuery(
+				"SELECT question, difficulty, isCorrect, answer, mquestionid FROM mquestiontb NATURAL JOIN"
+						+ " mquestion_answertb NATURAL JOIN answertb WHERE subjectid = " + subjectid + ";");
 		while (rs4.next()) {
 			String questionText = rs4.getString("question");
 			int difficulty = rs4.getInt("difficulty");
-			db.addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]));
+			db.addQuestion(new MultipleQuestion(questionText, eDifficulty.values()[difficulty]), 0, 0, stmt,
+					!uploadToDb);
 
 			boolean isCorrect = rs4.getBoolean("iscorrect");
 			String answerText = rs4.getString("answer");
 			Answers tmpAns = db.getAnswer(db.getAnswerIndex(answerText));
-			int questionIndex = db.getNumOfQuestions() - 1;
-			((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect, 0, 0, stmt, !uploadToDb);
+//			int questionIndex = db.getNumOfQuestions() - 1;
+			int questionIndex = rs4.getInt("mquestionid") + offset;
+			((MultipleQuestion) (db.getQuestion(questionIndex))).addAnswerToQuestion(tmpAns, isCorrect, 0, 0, stmt,
+					!uploadToDb);
 		}
 		rs4.close();
 	}
@@ -562,7 +567,7 @@ public class Program {
 					addAnswerToQuestion(db, stmt);
 					break;
 				case 4:
-					addQuestionToDb(db);
+					addQuestionToDb(db, stmt);
 					break;
 				case 5:
 					deleteAnsToQuestionFromDb(db, stmt);

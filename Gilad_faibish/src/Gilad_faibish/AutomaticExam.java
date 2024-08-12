@@ -19,7 +19,7 @@ public class AutomaticExam implements Examable {
 		int qIndex; // question index
 		int serialNum;
 		Questions temp[] = new Questions[db.getNumOfQuestions()];
-		
+
 		LocalDateTime today = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh_mm");
 		StringBuffer exName = new StringBuffer("" + today.format(dtf) + ".txt");
@@ -89,7 +89,8 @@ public class AutomaticExam implements Examable {
 
 	}
 
-	public void addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt) throws SQLException {
+	public void addAnsToQuestionForExam(DataBase exam, DataBase db, int qIndex, int eIndex, Statement stmt)
+			throws SQLException {
 		MultipleQuestion mq = (MultipleQuestion) db.getQuestion(qIndex);
 		MultipleQuestion eq = (MultipleQuestion) exam.getQuestion(eIndex);
 		Random r = new Random();
