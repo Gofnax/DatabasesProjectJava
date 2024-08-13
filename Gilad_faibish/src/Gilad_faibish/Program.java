@@ -38,6 +38,20 @@ public class Program {
 	public static void printQuestionsFromDb(DataBase db) {
 		System.out.println(db.toString());
 	}
+	
+	public static String checkSQLInjection(String str) {
+		boolean isSafe = false;
+		do {
+			if(str.contains("--") || str.contains(";") || str.contains("/*") || str.contains("*/")) {
+				System.out.println("String entered contains illegal chararcters. Try again.");
+				s.nextLine();
+				str = s.nextLine();
+			} else {
+				isSafe = true;
+			}
+		}while(!isSafe);
+		return str;
+	}
 
 	public static boolean addAnswerToDb(DataBase db, Statement stmt) throws SQLException {
 		System.out.println(db.ansToString());
@@ -45,6 +59,7 @@ public class Program {
 		System.out.println("please write your answer: ");
 		s.nextLine();
 		String answer = s.nextLine();
+		answer = checkSQLInjection(answer);
 
 		Answers a = new Answers(answer);
 
@@ -167,6 +182,7 @@ public class Program {
 		System.out.println("Please write your question: ");
 		s.nextLine();
 		String question = s.nextLine();
+		question = checkSQLInjection(question);
 
 		int ans = 0;
 		if (qType == 1) {
@@ -395,6 +411,7 @@ public class Program {
 					do {
 						System.out.println("Enter the name of the subject:");
 						String ans = s.next();
+						ans = checkSQLInjection(ans);
 						isExist = false;
 						for (int i = 0; i < allSubjects.length; i++) {
 							if (allSubjects[i] == ans) {
