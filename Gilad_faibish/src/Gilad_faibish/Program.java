@@ -44,7 +44,6 @@ public class Program {
 		do {
 			if(str.contains("--") || str.contains(";") || str.contains("/*") || str.contains("*/")) {
 				System.out.println("String entered contains illegal chararcters. Try again.");
-				s.nextLine();
 				str = s.nextLine();
 			} else {
 				isSafe = true;
@@ -410,7 +409,8 @@ public class Program {
 				case 1:
 					do {
 						System.out.println("Enter the name of the subject:");
-						String ans = s.next();
+						s.nextLine();
+						String ans = s.nextLine();
 						ans = checkSQLInjection(ans);
 						isExist = false;
 						for (int i = 0; i < allSubjects.length; i++) {
